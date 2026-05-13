@@ -12,7 +12,9 @@ export type Profile = {
   email: string;
   name: string;
   company: string;
-  password_hash: string;
+  password_hash: string | null;
+  provider: string;
+  avatar_url: string | null;
   created_at: string;
 };
 
