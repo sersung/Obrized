@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { anthropic, MODEL } from "@/lib/anthropic";
+import { genAI, MODEL, FunctionCallingMode } from "@/lib/gemini";
 import { PAYMENTS_SYSTEM_PROMPT, PAYMENTS_USER_PROMPT } from "@/lib/prompts/payments";
 
 export async function POST(req: NextRequest) {
@@ -30,60 +30,60 @@ export async function POST(req: NextRequest) {
       lienWaiversUploaded: lienWaiverUploaded,
     };
 
-    const response = await anthropic.messages.create({
-      model: MODEL,
-      max_tokens: 2048,
-      system: PAYMENTS_SYSTEM_PROMPT,
-      tools: [
-        {
-          name: "validate_proper_invoice",
-          description: "Validate whether this invoice qualifies as a 'proper invoice' under Canadian Prompt Payment legislation",
-          input_schema: {
-            type: "object" as const,
-            properties: {
-              is_proper_invoice: {
-                type: "boolean",
-                description: "Whether this is a valid proper invoice",
-              },
-              compliance_score: {
-                type: "number",
-                description: "Compliance score 0-100",
-              },
-              issues: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    field: { type: "string" },
-                    issue: { type: "string" },
-                    legislation: {
-                      type: "string",
-                      description: "Specific legislation reference",
-                    },
-                  },
-                  required: ["field", "issue", "legislation"],
-                },
-              },
-            },
-            required: ["is_proper_invoice", "compliance_score", "issues"],
-          },
-        },
-      ],
-      tool_choice: { type: "any" },
-      messages: [
+    const model = genAI.getGenerativeModel({ model: MODEL });
+
+    const geminiResult = await model.generateContent({
+      systemInstruction: PAYMENTS_SYSTEM_PROMPT,
+      contents: [
         {
           role: "user",
-          content: `${PAYMENTS_USER_PROMPT(province)}\n\nInvoice data:\n${JSON.stringify(invoiceData, null, 2)}`,
+          parts: [{ text: `${PAYMENTS_USER_PROMPT(province)}\n\nInvoice data:\n${JSON.stringify(invoiceData, null, 2)}` }],
         },
       ],
+      tools: [
+        {
+          functionDeclarations: [
+            {
+              name: "validate_proper_invoice",
+              description: "Validate whether this invoice qualifies as a 'proper invoice' under Canadian Prompt Payment legislation",
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              parameters: {
+                type: "object",
+                properties: {
+                  is_proper_invoice: { type: "boolean", description: "Whether this is a valid proper invoice" },
+                  compliance_score: { type: "number", description: "Compliance score 0-100" },
+                  issues: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        field: { type: "string" },
+                        issue: { type: "string" },
+                        legislation: { type: "string", description: "Specific legislation reference" },
+                      },
+                      required: ["field", "issue", "legislation"],
+                    },
+                  },
+                },
+                required: ["is_proper_invoice", "compliance_score", "issues"],
+              } as any,
+            },
+          ],
+        },
+      ],
+      toolConfig: { functionCallingConfig: { mode: FunctionCallingMode.ANY } },
+      generationConfig: { maxOutputTokens: 2048 },
     });
 
     let result = null;
-    for (const block of response.content) {
-      if (block.type === "tool_use" && block.name === "validate_proper_invoice") {
-        result = block.input;
-        break;
+    for (const candidate of geminiResult.response.candidates ?? []) {
+      for (const part of candidate.content.parts) {
+        if (part.functionCall && part.functionCall.name === "validate_proper_invoice") {
+          result = part.functionCall.args;
+          break;
+        }
       }
+      if (result) break;
     }
 
     if (!result) {

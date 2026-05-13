@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { anthropic, MODEL } from "@/lib/anthropic";
+import { genAI, MODEL, FunctionCallingMode } from "@/lib/gemini";
 import { SAFETY_SYSTEM_PROMPT, SAFETY_USER_PROMPT } from "@/lib/prompts/safety";
 
 export async function POST(req: NextRequest) {
@@ -11,75 +11,56 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const response = await anthropic.messages.create({
-      model: MODEL,
-      max_tokens: 4096,
-      system: SAFETY_SYSTEM_PROMPT,
-      tools: [
-        {
-          name: "generate_safety_report",
-          description: "Generate a structured construction safety daily report",
-          input_schema: {
-            type: "object" as const,
-            properties: {
-              date: { type: "string" },
-              project: { type: "string" },
-              workers_on_site: { type: "number" },
-              weather: { type: "string" },
-              temperature_c: { type: "number" },
-              work_performed: {
-                type: "string",
-                description: "Detailed description of work completed today",
-              },
-              hazards_noted: {
-                type: "array",
-                items: { type: "string" },
-                description: "List of specific hazards identified on site",
-              },
-              corrective_actions: {
-                type: "string",
-                description: "Actions taken to address identified hazards",
-              },
-              incidents: {
-                type: "string",
-                description: "Any incidents, near-misses, or injuries (or 'None reported')",
-              },
-              compliance_flags: {
-                type: "array",
-                items: { type: "string" },
-                description: "Any items requiring regulatory notification or follow-up",
-              },
-            },
-            required: [
-              "date",
-              "project",
-              "workers_on_site",
-              "weather",
-              "temperature_c",
-              "work_performed",
-              "hazards_noted",
-              "corrective_actions",
-              "incidents",
-              "compliance_flags",
-            ],
-          },
-        },
-      ],
-      tool_choice: { type: "any" },
-      messages: [
+    const model = genAI.getGenerativeModel({ model: MODEL });
+
+    const geminiResult = await model.generateContent({
+      systemInstruction: SAFETY_SYSTEM_PROMPT,
+      contents: [
         {
           role: "user",
-          content: `${SAFETY_USER_PROMPT(project, reportDate, reportType)}\n\nField notes:\n${rawText}`,
+          parts: [{ text: `${SAFETY_USER_PROMPT(project, reportDate, reportType)}\n\nField notes:\n${rawText}` }],
         },
       ],
+      tools: [
+        {
+          functionDeclarations: [
+            {
+              name: "generate_safety_report",
+              description: "Generate a structured construction safety daily report",
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              parameters: {
+                type: "object",
+                properties: {
+                  date: { type: "string" },
+                  project: { type: "string" },
+                  workers_on_site: { type: "number" },
+                  weather: { type: "string" },
+                  temperature_c: { type: "number" },
+                  work_performed: { type: "string", description: "Detailed description of work completed today" },
+                  hazards_noted: { type: "array", items: { type: "string" }, description: "List of specific hazards identified on site" },
+                  corrective_actions: { type: "string", description: "Actions taken to address identified hazards" },
+                  incidents: { type: "string", description: "Any incidents, near-misses, or injuries (or 'None reported')" },
+                  compliance_flags: { type: "array", items: { type: "string" }, description: "Any items requiring regulatory notification" },
+                },
+                required: ["date", "project", "workers_on_site", "weather", "temperature_c", "work_performed", "hazards_noted", "corrective_actions", "incidents", "compliance_flags"],
+              } as any,
+            },
+          ],
+        },
+      ],
+      toolConfig: { functionCallingConfig: { mode: FunctionCallingMode.ANY } },
+      generationConfig: { maxOutputTokens: 4096 },
     });
 
     let report = null;
-    for (const block of response.content) {
-      if (block.type === "tool_use" && block.name === "generate_safety_report") {
-        report = block.input;
-        break;
+    for (const candidate of geminiResult.response.candidates ?? []) {
+      for (const part of candidate.content.parts) {
+        if (part.functionCall && part.functionCall.name === "generate_safety_report") {
+          report = part.functionCall.args;
+          break;
+        }
       }
+      if (report) break;
     }
 
     if (!report) {

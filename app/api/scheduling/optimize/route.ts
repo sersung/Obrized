@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { anthropic, MODEL } from "@/lib/anthropic";
+import { genAI, MODEL, FunctionCallingMode } from "@/lib/gemini";
 import { SCHEDULING_SYSTEM_PROMPT, SCHEDULING_USER_PROMPT } from "@/lib/prompts/scheduling";
 
 export async function POST(req: NextRequest) {
@@ -16,60 +16,63 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const response = await anthropic.messages.create({
-      model: MODEL,
-      max_tokens: 4096,
-      system: SCHEDULING_SYSTEM_PROMPT,
-      tools: [
-        {
-          name: "propose_reschedule",
-          description: "Propose a rescheduled project timeline after a delay",
-          input_schema: {
-            type: "object" as const,
-            properties: {
-              updatedTasks: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    id: { type: "string" },
-                    planned_start: { type: "string" },
-                    planned_end: { type: "string" },
-                    is_critical: { type: "boolean" },
-                    status: { type: "string" },
-                  },
-                  required: ["id", "planned_start", "planned_end"],
-                },
-              },
-              affectedCount: { type: "number" },
-              daysAdded: {
-                type: "number",
-                description: "How many days the project end date has shifted",
-              },
-              reasoning: {
-                type: "string",
-                description: "Brief explanation of the key rescheduling decisions",
-              },
-            },
-            required: ["updatedTasks", "affectedCount", "daysAdded", "reasoning"],
-          },
-        },
-      ],
-      tool_choice: { type: "any" },
-      messages: [
+    const model = genAI.getGenerativeModel({ model: MODEL });
+
+    const geminiResult = await model.generateContent({
+      systemInstruction: SCHEDULING_SYSTEM_PROMPT,
+      contents: [
         {
           role: "user",
-          content: `${SCHEDULING_USER_PROMPT(delayedTask.name, delayDays)}\n\nCurrent task list:\n${JSON.stringify(tasks, null, 2)}`,
+          parts: [{ text: `${SCHEDULING_USER_PROMPT(delayedTask.name, delayDays)}\n\nCurrent task list:\n${JSON.stringify(tasks, null, 2)}` }],
         },
       ],
+      tools: [
+        {
+          functionDeclarations: [
+            {
+              name: "propose_reschedule",
+              description: "Propose a rescheduled project timeline after a delay",
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              parameters: {
+                type: "object",
+                properties: {
+                  updatedTasks: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        planned_start: { type: "string" },
+                        planned_end: { type: "string" },
+                        is_critical: { type: "boolean" },
+                        status: { type: "string" },
+                      },
+                      required: ["id", "planned_start", "planned_end"],
+                    },
+                  },
+                  affectedCount: { type: "number" },
+                  daysAdded: { type: "number", description: "How many days the project end date has shifted" },
+                  reasoning: { type: "string", description: "Brief explanation of the key rescheduling decisions" },
+                },
+                required: ["updatedTasks", "affectedCount", "daysAdded", "reasoning"],
+              } as any,
+            },
+          ],
+        },
+      ],
+      toolConfig: { functionCallingConfig: { mode: FunctionCallingMode.ANY } },
+      generationConfig: { maxOutputTokens: 4096 },
     });
 
     let result = null;
-    for (const block of response.content) {
-      if (block.type === "tool_use" && block.name === "propose_reschedule") {
-        result = block.input;
-        break;
+    for (const candidate of geminiResult.response.candidates ?? []) {
+      for (const part of candidate.content.parts) {
+        if (part.functionCall && part.functionCall.name === "propose_reschedule") {
+          result = part.functionCall.args;
+          break;
+        }
       }
+      if (result) break;
     }
 
     if (!result) {

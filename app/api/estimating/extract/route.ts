@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { anthropic, MODEL } from "@/lib/anthropic";
+import { genAI, MODEL, FunctionCallingMode } from "@/lib/gemini";
 import { ESTIMATING_SYSTEM_PROMPT, ESTIMATING_USER_PROMPT } from "@/lib/prompts/estimating";
 
 function sse(data: object) {
@@ -27,101 +27,72 @@ export async function POST(req: NextRequest) {
         const base64 = Buffer.from(buffer).toString("base64");
 
         controller.enqueue(
-          encoder.encode(sse({ type: "log", message: "🤖 Analisando planta com Claude Vision..." }))
+          encoder.encode(sse({ type: "log", message: "🤖 Analisando planta com Gemini Vision..." }))
         );
 
-        // Call Claude with tool use for structured extraction
-        const response = await anthropic.messages.create({
-          model: MODEL,
-          max_tokens: 8192,
-          system: ESTIMATING_SYSTEM_PROMPT,
-          tools: [
-            {
-              name: "record_quantity",
-              description: "Record an extracted construction quantity from the blueprint",
-              input_schema: {
-                type: "object" as const,
-                properties: {
-                  csi_code: {
-                    type: "string",
-                    description: "CSI MasterFormat division code (e.g. 03 30 00)",
-                  },
-                  description: {
-                    type: "string",
-                    description: "Description of the construction element",
-                  },
-                  quantity: { type: "number", description: "Numeric quantity" },
-                  unit: {
-                    type: "string",
-                    description: "Unit of measure (m², m, each, kg, etc.)",
-                  },
-                  unit_price: {
-                    type: "number",
-                    description: "Estimated unit price in CAD",
-                  },
-                  material_cost: {
-                    type: "number",
-                    description: "Total material cost in CAD",
-                  },
-                  labour_hours: {
-                    type: "number",
-                    description: "Estimated labour hours for installation",
-                  },
-                },
-                required: [
-                  "csi_code",
-                  "description",
-                  "quantity",
-                  "unit",
-                  "unit_price",
-                  "material_cost",
-                  "labour_hours",
-                ],
-              },
-            },
-          ],
-          tool_choice: { type: "auto" },
-          messages: [
+        const geminiModel = genAI.getGenerativeModel({ model: MODEL });
+
+        const result = await geminiModel.generateContent({
+          systemInstruction: ESTIMATING_SYSTEM_PROMPT,
+          contents: [
             {
               role: "user",
-              content: [
+              parts: [
+                { inlineData: { data: base64, mimeType: "application/pdf" } },
+                { text: ESTIMATING_USER_PROMPT(province) },
+              ],
+            },
+          ],
+          tools: [
+            {
+              functionDeclarations: [
                 {
-                  type: "document",
-                  source: {
-                    type: "base64",
-                    media_type: file.type as "application/pdf",
-                    data: base64,
-                  },
-                },
-                {
-                  type: "text",
-                  text: ESTIMATING_USER_PROMPT(province),
+                  name: "record_quantity",
+                  description: "Record an extracted construction quantity from the blueprint",
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      csi_code: { type: "string", description: "CSI MasterFormat division code (e.g. 03 30 00)" },
+                      description: { type: "string", description: "Description of the construction element" },
+                      quantity: { type: "number", description: "Numeric quantity" },
+                      unit: { type: "string", description: "Unit of measure (m², m, each, kg, etc.)" },
+                      unit_price: { type: "number", description: "Estimated unit price in CAD" },
+                      material_cost: { type: "number", description: "Total material cost in CAD" },
+                      labour_hours: { type: "number", description: "Estimated labour hours for installation" },
+                    },
+                    required: ["csi_code", "description", "quantity", "unit", "unit_price", "material_cost", "labour_hours"],
+                  } as any,
                 },
               ],
             },
           ],
+          toolConfig: { functionCallingConfig: { mode: FunctionCallingMode.AUTO } },
+          generationConfig: { maxOutputTokens: 8192 },
         });
 
         let itemCount = 0;
-        for (const block of response.content) {
-          if (block.type === "tool_use" && block.name === "record_quantity") {
-            itemCount++;
-            controller.enqueue(
-              encoder.encode(
-                sse({
-                  type: "log",
-                  message: `✓ Item ${itemCount}: ${(block.input as { description: string }).description}`,
-                })
-              )
-            );
-            controller.enqueue(
-              encoder.encode(
-                sse({
-                  type: "item",
-                  item: block.input,
-                })
-              )
-            );
+        for (const candidate of result.response.candidates ?? []) {
+          for (const part of candidate.content.parts) {
+            if (part.functionCall && part.functionCall.name === "record_quantity") {
+              itemCount++;
+              controller.enqueue(
+                encoder.encode(
+                  sse({
+                    type: "log",
+                    message: `✓ Item ${itemCount}: ${(part.functionCall.args as { description: string }).description}`,
+                  })
+                )
+              );
+              controller.enqueue(
+                encoder.encode(
+                  sse({
+                    type: "item",
+                    item: part.functionCall.args,
+                  })
+                )
+              );
+            }
           }
         }
 
