@@ -93,6 +93,20 @@ export default function NewContractPage() {
       const data = await response.json();
       setResult(data);
       toast.success(`Análise concluída: ${data.clauses.length} cláusulas revisadas.`);
+      // Save to Supabase
+      await fetch("/api/contracts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `${contractType} — ${file.name.replace(".pdf", "")}`,
+          contract_type: contractType,
+          counterparty: "",
+          value: 0,
+          overall_risk: data.overall_risk,
+          clauses_count: data.clauses.length,
+          analysis: data,
+        }),
+      });
     } catch {
       toast.error("Erro na análise. Verifique sua chave de API e tente novamente.");
     } finally {

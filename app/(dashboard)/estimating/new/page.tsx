@@ -111,6 +111,23 @@ export default function NewEstimatePage() {
           } else if (data.type === "done") {
             setState("done");
             setStreamLog((prev) => [...prev, `✓ ${extractedItems.length} itens extraídos com sucesso.`]);
+            // Save to Supabase
+            const totalMat = extractedItems.reduce((s, i) => s + i.material_cost, 0);
+            const totalLab = extractedItems.reduce((s, i) => s + i.labour_hours * i.labour_rate, 0);
+            await fetch("/api/estimates", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                project_name: projectName,
+                province,
+                items: extractedItems,
+                total_value: totalMat + totalLab,
+                confidence: extractedItems.length > 0
+                  ? Math.round(extractedItems.reduce((s, i) => s + (i.ai_extracted ? 85 : 100), 0) / extractedItems.length)
+                  : 0,
+              }),
+            });
+            toast.success("Orçamento salvo com sucesso!");
           }
         }
       }

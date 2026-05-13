@@ -104,12 +104,32 @@ export default function NewPaymentPage() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validation?.is_proper_invoice) {
       toast.error("Corrija os problemas antes de submeter a fatura.");
       return;
     }
-    toast.success("Fatura submetida! Relógio de 28 dias iniciado.");
+    try {
+      const res = await fetch("/api/invoices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invoice_number: invoiceNumber,
+          project_name: project,
+          province,
+          items,
+          subtotal,
+          total,
+          is_proper: validation.is_proper_invoice,
+          wsib_uploaded: wsibUploaded,
+          lien_waiver_uploaded: lienWaiverUploaded,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Fatura submetida! Relógio de 28 dias iniciado.");
+    } catch {
+      toast.error("Erro ao salvar fatura.");
+    }
   };
 
   return (

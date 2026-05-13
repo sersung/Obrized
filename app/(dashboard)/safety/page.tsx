@@ -1,101 +1,40 @@
 import Link from "next/link";
-import {
-  Plus,
-  CheckCircle2,
-  AlertTriangle,
-  Clock,
-  FileText,
-  ShieldCheck,
-  ArrowRight,
-} from "lucide-react";
-
-const reports = [
-  {
-    id: "1",
-    project: "Condomínio Maple Ridge",
-    date: "2025-04-16",
-    type: "daily",
-    workers: 18,
-    hazards: 2,
-    incidents: 0,
-    status: "signed",
-    aiGenerated: true,
-  },
-  {
-    id: "2",
-    project: "Condomínio Maple Ridge",
-    date: "2025-04-15",
-    type: "daily",
-    workers: 22,
-    hazards: 1,
-    incidents: 0,
-    status: "signed",
-    aiGenerated: true,
-  },
-  {
-    id: "3",
-    project: "Escritórios Yaletown",
-    date: "2025-04-16",
-    type: "daily",
-    workers: 11,
-    hazards: 3,
-    incidents: 1,
-    status: "draft",
-    aiGenerated: true,
-  },
-  {
-    id: "4",
-    project: "King St Reforma",
-    date: "2025-04-14",
-    type: "toolbox",
-    workers: 6,
-    hazards: 0,
-    incidents: 0,
-    status: "signed",
-    aiGenerated: false,
-  },
-  {
-    id: "5",
-    project: "Condomínio Maple Ridge",
-    date: "2025-04-14",
-    type: "daily",
-    workers: 20,
-    hazards: 1,
-    incidents: 0,
-    status: "signed",
-    aiGenerated: true,
-  },
-];
-
-const compliance = [
-  {
-    project: "Condomínio Maple Ridge",
-    lastReport: "2025-04-16",
-    status: "compliant",
-    streak: 12,
-  },
-  { project: "Escritórios Yaletown", lastReport: "2025-04-16", status: "draft", streak: 7 },
-  { project: "King St Reforma", lastReport: "2025-04-14", status: "overdue", streak: 0 },
-  { project: "Residência Westmount", lastReport: "2025-04-12", status: "overdue", streak: 0 },
-];
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
+import type { SafetyReport } from "@/lib/supabase";
+import { Plus, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 const typeLabels: Record<string, string> = {
-  daily: "Diário",
+  daily: "Diário de Obra",
   weekly: "Semanal",
   incident: "Incidente",
   toolbox: "Toolbox Talk",
 };
 
-export default function SafetyPage() {
+export default async function SafetyPage() {
+  const session = await getServerSession(authOptions);
+  const { data: reports = [] } = await supabase
+    .from("safety_reports")
+    .select("*")
+    .eq("user_email", session?.user?.email ?? "")
+    .order("created_at", { ascending: false });
+
+  const list = reports as SafetyReport[];
+  const thisWeek = list.filter((r) => {
+    const diff = (new Date().getTime() - new Date(r.created_at).getTime()) / (1000 * 60 * 60 * 24);
+    return diff <= 7;
+  });
+
   return (
     <div className="space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Dias sem incidentes", value: "47", color: "text-green-600" },
-          { label: "Relatórios este mês", value: "32", color: "text-brand-600" },
-          { label: "Gerados por IA", value: "89%", color: "text-purple-600" },
-          { label: "Projetos em dia", value: "2/4", color: "text-amber-600" },
+          { label: "Total de Relatórios", value: list.length.toString(), color: "text-gray-900" },
+          { label: "Esta Semana", value: thisWeek.length.toString(), color: "text-brand-600" },
+          { label: "Incidentes", value: list.filter((r) => r.report_type === "incident").length.toString(), color: "text-red-600" },
+          { label: "Toolbox Talks", value: list.filter((r) => r.report_type === "toolbox").length.toString(), color: "text-orange-600" },
         ].map((stat) => (
           <div key={stat.label} className="bg-white rounded-xl border border-gray-100 p-5">
             <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
@@ -104,51 +43,11 @@ export default function SafetyPage() {
         ))}
       </div>
 
-      {/* Compliance overview */}
-      <div className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="font-semibold text-gray-900 mb-4">Conformidade por Projeto</h3>
-        <div className="space-y-3">
-          {compliance.map((c) => (
-            <div key={c.project} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-              <div className="flex items-center gap-3">
-                {c.status === "compliant" ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
-                ) : c.status === "draft" ? (
-                  <Clock className="w-5 h-5 text-amber-500" />
-                ) : (
-                  <AlertTriangle className="w-5 h-5 text-red-500" />
-                )}
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">{c.project}</p>
-                  <p className="text-xs text-gray-500">Último relatório: {c.lastReport}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                {c.status === "compliant" ? (
-                  <span className="text-xs font-medium text-green-700 bg-green-50 px-2 py-1 rounded-full">
-                    {c.streak} dias consecutivos
-                  </span>
-                ) : c.status === "draft" ? (
-                  <span className="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-1 rounded-full">
-                    Rascunho pendente
-                  </span>
-                ) : (
-                  <span className="text-xs font-medium text-red-700 bg-red-50 px-2 py-1 rounded-full flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3" /> Atrasado
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Reports list */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-semibold text-gray-900">Relatórios Recentes</h2>
+          <h2 className="font-semibold text-gray-900">Relatórios de Segurança</h2>
           <p className="text-sm text-gray-500 mt-0.5">
-            Gerados por voz e estruturados pela IA conforme OHSA/WorkSafeBC
+            Gerados por IA via voz ou texto — conformidade OHSA / WorkSafeBC
           </p>
         </div>
         <Link
@@ -160,91 +59,103 @@ export default function SafetyPage() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">
-                Projeto / Data
-              </th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase hidden md:table-cell">
-                Tipo
-              </th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">
-                Trabalhadores
-              </th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">
-                Riscos / Incidentes
-              </th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">
-                Status
-              </th>
-              <th className="px-5 py-3" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {reports.map((report) => (
-              <tr key={report.id} className="hover:bg-gray-50/50 transition-colors">
-                <td className="px-5 py-4">
-                  <p className="font-medium text-gray-900">{report.project}</p>
-                  <p className="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
-                    {report.date}
-                    {report.aiGenerated && (
-                      <span className="bg-purple-50 text-purple-600 text-xs px-1.5 py-0.5 rounded font-medium">
-                        IA
-                      </span>
-                    )}
-                  </p>
-                </td>
-                <td className="px-5 py-4 hidden md:table-cell">
-                  <span className="text-gray-600">{typeLabels[report.type]}</span>
-                </td>
-                <td className="px-5 py-4 hidden lg:table-cell">
-                  <span className="text-gray-700">{report.workers}</span>
-                </td>
-                <td className="px-5 py-4">
-                  <div className="flex items-center gap-2">
-                    {report.hazards > 0 && (
-                      <span className="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
-                        {report.hazards} risco{report.hazards > 1 ? "s" : ""}
-                      </span>
-                    )}
-                    {report.incidents > 0 && (
-                      <span className="text-xs text-red-700 bg-red-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+      {/* Empty state */}
+      {list.length === 0 && (
+        <div className="bg-white rounded-xl border border-gray-100 p-12 text-center">
+          <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <ShieldCheck className="w-7 h-7 text-orange-400" />
+          </div>
+          <h3 className="font-semibold text-gray-900">Nenhum relatório ainda</h3>
+          <p className="text-sm text-gray-500 mt-1 mb-4">
+            Dite as atividades do dia por voz e a IA gera o relatório completo.
+          </p>
+          <Link
+            href="/safety/new"
+            className="inline-flex items-center gap-2 bg-orange-500 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Criar primeiro relatório
+          </Link>
+        </div>
+      )}
+
+      {list.length > 0 && (
+        <div className="space-y-3">
+          {list.map((report) => {
+            const hasFlags =
+              report.report &&
+              Array.isArray((report.report as any).compliance_flags) &&
+              (report.report as any).compliance_flags.length > 0;
+            const workers = report.report ? (report.report as any).workers_on_site : null;
+
+            return (
+              <div
+                key={report.id}
+                className="bg-white rounded-xl border border-gray-100 p-5 hover:border-gray-200 transition-all"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        report.report_type === "incident" ? "bg-red-50" : "bg-orange-50"
+                      }`}
+                    >
+                      {report.report_type === "incident" ? (
+                        <AlertTriangle className="w-5 h-5 text-red-500" />
+                      ) : (
+                        <ShieldCheck className="w-5 h-5 text-orange-500" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-gray-900">{report.project_name}</h3>
+                        <span className="text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded font-medium">
+                          {typeLabels[report.report_type] ?? report.report_type}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <span className="text-xs text-gray-500">
+                          {new Date(report.report_date).toLocaleDateString("pt-BR")}
+                        </span>
+                        {workers !== null && (
+                          <span className="text-xs text-gray-500">{workers} trabalhadores</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-shrink-0">
+                    {hasFlags ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700">
                         <AlertTriangle className="w-3 h-3" />
-                        {report.incidents} incidente
+                        Alertas
                       </span>
-                    )}
-                    {report.hazards === 0 && report.incidents === 0 && (
-                      <span className="text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> Limpo
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Conforme
                       </span>
                     )}
                   </div>
-                </td>
-                <td className="px-5 py-4">
-                  {report.status === "signed" ? (
-                    <span className="text-xs text-green-700 bg-green-50 px-2 py-1 rounded-full font-medium">
-                      Assinado
-                    </span>
-                  ) : (
-                    <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full font-medium">
-                      Rascunho
-                    </span>
-                  )}
-                </td>
-                <td className="px-5 py-4 text-right">
-                  <Link
-                    href={`/safety/${report.id}`}
-                    className="text-brand-600 hover:text-brand-700 font-medium text-xs flex items-center gap-1 justify-end"
-                  >
-                    Ver <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Info */}
+      <div className="bg-orange-50 border border-orange-100 rounded-xl p-5 flex gap-4">
+        <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <ShieldCheck className="w-5 h-5 text-orange-600" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-orange-900 text-sm">Conformidade OHSA / WorkSafeBC</h3>
+          <p className="text-orange-700 text-sm mt-1">
+            Dite as atividades do dia por voz. A IA estrutura o relatório conforme OHSA (Ontario) ou
+            WorkSafeBC, identifica riscos e sinaliza não-conformidades automaticamente.
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -137,6 +137,18 @@ export default function NewSafetyReportPage() {
       setReport(data.report);
       setState("done");
       toast.success("Relatório gerado com sucesso!");
+      // Save to Supabase
+      await fetch("/api/safety", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_name: project,
+          report_type: reportType,
+          raw_transcript: transcript,
+          report: data.report,
+          report_date: new Date().toISOString().split("T")[0],
+        }),
+      });
     } catch {
       setState("idle");
       toast.error("Erro ao gerar relatório. Verifique sua chave de API.");

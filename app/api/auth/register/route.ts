@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Senha deve ter no mínimo 6 caracteres." }, { status: 400 });
   }
 
-  const user = createUser(email, password, name, company ?? "");
+  const user = await createUser(email, password, name, company ?? "");
   if (!user) {
     return NextResponse.json({ error: "Este e-mail já está em uso." }, { status: 409 });
   }
