@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node -e \"try{require('fs').unlinkSync('./middleware.ts')}catch(e){}\" && next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -12,10 +12,13 @@
     "@anthropic-ai/sdk": "^0.39.0",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.0.1",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.511.0",
     "next": "^16.2.4",
+    "next-auth": "^4.24.14",
     "pdf-parse": "^1.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

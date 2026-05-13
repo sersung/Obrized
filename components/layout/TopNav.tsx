@@ -1,8 +1,9 @@
 "use client";
 
-import { Bell, Search, Plus } from "lucide-react";
+import { Bell, Search, Plus, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 
 const breadcrumbMap: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -28,6 +29,7 @@ export default function TopNav() {
   const pathname = usePathname();
   const pageTitle = breadcrumbMap[pathname] ?? "BuildrAI";
   const newAction = newActionMap[pathname];
+  const { data: session } = useSession();
 
   return (
     <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 flex-shrink-0">
@@ -67,6 +69,28 @@ export default function TopNav() {
           <Bell className="w-5 h-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
         </button>
+
+        {/* User menu */}
+        <div className="flex items-center gap-2 pl-2 border-l border-gray-100">
+          <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center">
+            <User className="w-4 h-4 text-brand-600" />
+          </div>
+          <div className="hidden md:block text-left">
+            <p className="text-xs font-medium text-gray-900 leading-tight">
+              {session?.user?.name ?? "Usuário"}
+            </p>
+            <p className="text-xs text-gray-500 leading-tight">
+              {session?.user?.email ?? ""}
+            </p>
+          </div>
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            title="Sair"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </header>
   );

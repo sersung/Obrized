@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
+import Providers from "@/components/providers";
 
 export const metadata: Metadata = {
   title: "BuildrAI — Plataforma de IA para Construtores Canadenses",
@@ -16,8 +17,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className="antialiased">
-        {children}
-        <Toaster richColors position="top-right" />
+        <Providers>
+          {children}
+          <Toaster richColors position="top-right" />
+        </Providers>
       </body>
     </html>
   );
