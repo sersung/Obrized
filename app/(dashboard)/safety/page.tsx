@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -14,10 +15,11 @@ const typeLabels: Record<string, string> = {
 
 export default async function SafetyPage() {
   const session = await getServerSession(authOptions);
+  if (!session?.user?.email) redirect("/login");
   const { data: reports = [] } = await supabase
     .from("safety_reports")
     .select("*")
-    .eq("user_email", session?.user?.email ?? "")
+    .eq("user_email", session.user.email)
     .order("created_at", { ascending: false });
 
   const list = reports as SafetyReport[];

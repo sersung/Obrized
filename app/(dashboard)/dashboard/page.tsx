@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -21,7 +22,8 @@ const fmt = (n: number) =>
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
-  const email = session?.user?.email ?? "";
+  if (!session?.user?.email) redirect("/login");
+  const email = session.user.email;
 
   // Load all data in parallel
   const [estimatesRes, contractsRes, safetyRes, invoicesRes] = await Promise.all([

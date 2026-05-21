@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -20,10 +21,11 @@ const fmt = (n: number) =>
 
 export default async function PaymentsPage() {
   const session = await getServerSession(authOptions);
+  if (!session?.user?.email) redirect("/login");
   const { data: invoices = [] } = await supabase
     .from("invoices")
     .select("*")
-    .eq("user_email", session?.user?.email ?? "")
+    .eq("user_email", session.user.email)
     .order("created_at", { ascending: false });
 
   // Auto-mark overdue invoices

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -17,10 +18,11 @@ const fmt = (n: number) =>
 
 export default async function ContractsPage() {
   const session = await getServerSession(authOptions);
+  if (!session?.user?.email) redirect("/login");
   const { data: contracts = [] } = await supabase
     .from("contracts")
     .select("*")
-    .eq("user_email", session?.user?.email ?? "")
+    .eq("user_email", session.user.email)
     .order("created_at", { ascending: false });
 
   const list = contracts as Contract[];
