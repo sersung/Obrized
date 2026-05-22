@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { supabase } from "@/lib/supabase";
 import type { SafetyReport } from "@/lib/supabase";
 import { Plus, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
@@ -14,12 +13,14 @@ const typeLabels: Record<string, string> = {
 };
 
 export default async function SafetyPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) redirect("/login");
+  const { userId } = await auth();
+  if (!userId) redirect("/login");
+  const clerkUser = await currentUser();
+  const email = clerkUser?.emailAddresses[0]?.emailAddress ?? '';
   const { data: reports = [] } = await supabase
     .from("safety_reports")
     .select("*")
-    .eq("user_email", session.user.email)
+    .eq("user_email", email)
     .order("created_at", { ascending: false });
 
   const list = reports as SafetyReport[];

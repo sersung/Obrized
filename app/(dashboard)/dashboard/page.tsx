@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { supabase } from "@/lib/supabase";
 import {
   DollarSign,
@@ -21,9 +20,10 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "CAD" }).format(n);
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) redirect("/login");
-  const email = session.user.email;
+  const { userId } = await auth();
+  if (!userId) redirect("/login");
+  const clerkUser = await currentUser();
+  const email = clerkUser?.emailAddresses[0]?.emailAddress ?? '';
 
   // Load all data in parallel
   const [estimatesRes, contractsRes, safetyRes, invoicesRes] = await Promise.all([

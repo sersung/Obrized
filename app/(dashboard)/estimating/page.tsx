@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { supabase } from "@/lib/supabase";
 import type { Estimate } from "@/lib/supabase";
 import {
@@ -25,12 +24,14 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "CAD" }).format(n);
 
 export default async function EstimatingPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) redirect("/login");
+  const { userId } = await auth();
+  if (!userId) redirect("/login");
+  const clerkUser = await currentUser();
+  const email = clerkUser?.emailAddresses[0]?.emailAddress ?? '';
   const { data: estimates = [] } = await supabase
     .from("estimates")
     .select("*")
-    .eq("user_email", session.user.email)
+    .eq("user_email", email)
     .order("created_at", { ascending: false });
 
   const list = estimates as Estimate[];

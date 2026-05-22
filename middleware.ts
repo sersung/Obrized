@@ -1,18 +1,20 @@
-import { withAuth } from "next-auth/middleware";
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-export default withAuth({
-  pages: {
-    signIn: "/login",
-  },
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/estimating(.*)',
+  '/contracts(.*)',
+  '/safety(.*)',
+  '/scheduling(.*)',
+  '/payments(.*)',
+]);
+
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) {
+    await auth.protect();
+  }
 });
 
 export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/estimating/:path*",
-    "/contracts/:path*",
-    "/safety/:path*",
-    "/scheduling/:path*",
-    "/payments/:path*",
-  ],
+  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
 };

@@ -3,7 +3,7 @@
 import { Bell, Search, Plus, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { useUser, useClerk } from '@clerk/nextjs';
 
 const breadcrumbMap: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -29,7 +29,8 @@ export default function TopNav() {
   const pathname = usePathname();
   const pageTitle = breadcrumbMap[pathname] ?? "BuildrAI";
   const newAction = newActionMap[pathname];
-  const { data: session } = useSession();
+  const { user } = useUser();
+  const { signOut } = useClerk();
 
   return (
     <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 flex-shrink-0">
@@ -72,10 +73,10 @@ export default function TopNav() {
 
         {/* User menu */}
         <div className="flex items-center gap-2 pl-2 border-l border-gray-100">
-          {(session?.user as any)?.image ? (
+          {user?.imageUrl ? (
             <img
-              src={(session?.user as any).image}
-              alt={session?.user?.name ?? "Avatar"}
+              src={user.imageUrl}
+              alt={user?.fullName ?? "Avatar"}
               className="w-8 h-8 rounded-full object-cover border border-gray-200"
             />
           ) : (
@@ -85,14 +86,14 @@ export default function TopNav() {
           )}
           <div className="hidden md:block text-left">
             <p className="text-xs font-medium text-gray-900 leading-tight">
-              {session?.user?.name ?? "Usuário"}
+              {user?.fullName ?? "Usuário"}
             </p>
             <p className="text-xs text-gray-500 leading-tight">
-              {session?.user?.email ?? ""}
+              {user?.primaryEmailAddress?.emailAddress ?? ""}
             </p>
           </div>
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => signOut({ redirectUrl: '/login' })}
             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
             title="Sair"
           >
