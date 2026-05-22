@@ -102,7 +102,7 @@ export default async function DashboardPage() {
       {isEmpty && (
         <div className="bg-gradient-to-r from-brand-600 to-brand-700 rounded-2xl p-6 text-white">
           <h2 className="text-xl font-bold mb-1">
-            Bem-vindo ao BuildrAI, {session?.user?.name?.split(" ")[0]}! 👷
+            Bem-vindo ao BuildrAI, {clerkUser?.firstName ?? email.split("@")[0]}! 👷
           </h2>
           <p className="text-brand-100 text-sm mb-4">
             Sua plataforma de IA para construtores canadenses. Comece criando um orçamento ou
