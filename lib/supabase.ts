@@ -1,9 +1,194 @@
 import { createClient } from "@supabase/supabase-js";
+import fs from "fs";
+import path from "path";
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY!;
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Create a local offline mock database client
+class LocalQueryBuilder {
+  private tableName: string;
+  private filters: Array<{ field: string; val: any }> = [];
+  private orderField: string | null = null;
+  private orderAscending: boolean = true;
+  private isSingle: boolean = false;
+  private dataDir: string;
+
+  constructor(tableName: string) {
+    this.tableName = tableName;
+    this.dataDir = path.join(process.cwd(), ".data");
+    if (!fs.existsSync(this.dataDir)) {
+      try {
+        fs.mkdirSync(this.dataDir, { recursive: true });
+      } catch (e) {}
+    }
+  }
+
+  private getData(): any[] {
+    const filePath = path.join(this.dataDir, `${this.tableName}.json`);
+    if (!fs.existsSync(filePath)) {
+      // Seed default profiles or items if empty
+      if (this.tableName === "profiles") {
+        return [
+          {
+            id: "1",
+            email: "john.carter@jcconstruction.ca",
+            name: "John Carter",
+            company: "JC Construction Ltd.",
+            // Bcrypt of "password123"
+            password_hash: "$2a$10$tZ2c6C/qZ7Q5H5UqIuO8aee3a/1/gO3dF7b5qg5Y5Q5h8/4K8pbeS",
+            provider: "credentials",
+            avatar_url: null,
+            created_at: new Date().toISOString()
+          }
+        ];
+      }
+      return [];
+    }
+    try {
+      return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    } catch {
+      return [];
+    }
+  }
+
+  private saveData(data: any[]) {
+    const filePath = path.join(this.dataDir, `${this.tableName}.json`);
+    try {
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+    } catch (e) {}
+  }
+
+  select(columns?: string) {
+    return this;
+  }
+
+  eq(field: string, val: any) {
+    this.filters.push({ field, val });
+    return this;
+  }
+
+  order(field: string, options?: { ascending?: boolean }) {
+    this.orderField = field;
+    this.orderAscending = options?.ascending ?? true;
+    return this;
+  }
+
+  single() {
+    this.isSingle = true;
+    return this;
+  }
+
+  async execute() {
+    let items = this.getData();
+
+    // Apply filters
+    for (const filter of this.filters) {
+      items = items.filter((item) => {
+        const itemVal = item[filter.field];
+        if (typeof itemVal === "string" && typeof filter.val === "string") {
+          return itemVal.toLowerCase() === filter.val.toLowerCase();
+        }
+        return itemVal === filter.val;
+      });
+    }
+
+    // Apply sorting
+    if (this.orderField) {
+      items.sort((a, b) => {
+        const valA = a[this.orderField!];
+        const valB = b[this.orderField!];
+        if (valA < valB) return this.orderAscending ? -1 : 1;
+        if (valA > valB) return this.orderAscending ? 1 : -1;
+        return 0;
+      });
+    }
+
+    if (this.isSingle) {
+      if (items.length === 0) {
+        return { data: null, error: { message: "Row not found" } };
+      }
+      return { data: items[0], error: null };
+    }
+
+    return { data: items, error: null };
+  }
+
+  // Promise-like then method so we can await the query builder directly!
+  then(onfulfilled?: (value: any) => any, onrejected?: (reason: any) => any) {
+    return this.execute().then(onfulfilled, onrejected);
+  }
+
+  insert(row: any) {
+    const items = this.getData();
+    const newRow = {
+      id: row.id || Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
+      created_at: new Date().toISOString(),
+      ...row,
+    };
+    items.push(newRow);
+    this.saveData(items);
+
+    const chain = {
+      select: () => ({
+        single: async () => ({ data: newRow, error: null }),
+        then(onfulfilled?: (value: any) => any, onrejected?: (reason: any) => any) {
+          return Promise.resolve({ data: [newRow], error: null }).then(onfulfilled, onrejected);
+        }
+      }),
+      then(onfulfilled?: (value: any) => any, onrejected?: (reason: any) => any) {
+        return Promise.resolve({ data: [newRow], error: null }).then(onfulfilled, onrejected);
+      }
+    };
+    return chain as any;
+  }
+
+  update(updates: any) {
+    const items = this.getData();
+    let updatedRow: any = null;
+
+    const newItems = items.map((item) => {
+      let matches = true;
+      for (const filter of this.filters) {
+        if (item[filter.field] !== filter.val) {
+          matches = false;
+        }
+      }
+      if (matches) {
+        updatedRow = { ...item, ...updates };
+        return updatedRow;
+      }
+      return item;
+    });
+
+    if (updatedRow) {
+      this.saveData(newItems);
+    }
+
+    const chain = {
+      select: () => ({
+        single: async () => ({ data: updatedRow, error: null }),
+        then(onfulfilled?: (value: any) => any, onrejected?: (reason: any) => any) {
+          return Promise.resolve({ data: updatedRow ? [updatedRow] : [], error: null }).then(onfulfilled, onrejected);
+        }
+      }),
+      then(onfulfilled?: (value: any) => any, onrejected?: (reason: any) => any) {
+        return Promise.resolve({ data: updatedRow ? [updatedRow] : [], error: null }).then(onfulfilled, onrejected);
+      }
+    };
+    return chain as any;
+  }
+}
+
+const mockSupabase = {
+  from: (tableName: string) => {
+    return new LocalQueryBuilder(tableName);
+  }
+};
+
+export const supabase = (supabaseUrl && supabaseKey)
+  ? createClient(supabaseUrl, supabaseKey)
+  : (mockSupabase as any);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

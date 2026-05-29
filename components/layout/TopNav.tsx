@@ -1,48 +1,62 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Bell, Search, Plus, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-
-const breadcrumbMap: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/estimating": "Orçamentação",
-  "/estimating/new": "Novo Orçamento",
-  "/contracts": "Contratos",
-  "/contracts/new": "Novo Contrato",
-  "/safety": "Segurança",
-  "/safety/new": "Novo Relatório",
-  "/scheduling": "Cronograma",
-  "/payments": "Pagamentos",
-  "/payments/new": "Nova Fatura",
-};
-
-const newActionMap: Record<string, { href: string; label: string }> = {
-  "/estimating": { href: "/estimating/new", label: "Novo Orçamento" },
-  "/contracts": { href: "/contracts/new", label: "Novo Contrato" },
-  "/safety": { href: "/safety/new", label: "Novo Relatório" },
-  "/payments": { href: "/payments/new", label: "Nova Fatura" },
-};
+import { useTranslations, Language } from "@/lib/translations";
 
 export default function TopNav() {
   const pathname = usePathname();
+  const [lang, setLang] = useState<Language>("EN");
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem("buildr_lang") as Language;
+    if (savedLang) {
+      setLang(savedLang);
+    }
+  }, []);
+
+  const { t } = useTranslations(lang);
+
+  const breadcrumbMap: Record<string, string> = {
+    "/dashboard": t("dashboard"),
+    "/estimating": t("estimating"),
+    "/estimating/new": t("new_estimate"),
+    "/contracts": t("contracts"),
+    "/contracts/new": t("new_contract"),
+    "/safety": t("safety"),
+    "/safety/new": t("new_safety_report"),
+    "/scheduling": t("scheduling"),
+    "/payments": t("payments"),
+    "/payments/new": t("new_invoice"),
+    "/settings": t("settings"),
+  };
+
+  const newActionMap: Record<string, { href: string; label: string }> = {
+    "/estimating": { href: "/estimating/new", label: t("new_estimate") },
+    "/contracts": { href: "/contracts/new", label: t("new_contract") },
+    "/safety": { href: "/safety/new", label: t("new_safety_report") },
+    "/payments": { href: "/payments/new", label: t("new_invoice") },
+  };
+
   const pageTitle = breadcrumbMap[pathname] ?? "BuildrAI";
   const newAction = newActionMap[pathname];
   const { data: session } = useSession();
 
+  const formattedDate = new Date().toLocaleDateString(lang === "EN" ? "en-CA" : "fr-CA", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 flex-shrink-0">
       <div>
-        <h1 className="text-lg font-semibold text-gray-900">{pageTitle}</h1>
-        <p className="text-xs text-gray-500">
-          {new Date().toLocaleDateString("pt-BR", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
+        <h1 className="text-lg font-semibold text-gray-900 tracking-tight">{pageTitle}</h1>
+        <p className="text-[11px] font-medium text-gray-400 capitalize mt-0.5">{formattedDate}</p>
       </div>
 
       <div className="flex items-center gap-3">
@@ -50,15 +64,15 @@ export default function TopNav() {
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Buscar projetos..."
-            className="pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent w-56"
+            placeholder={t("search_projects")}
+            className="pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent w-56 transition-all duration-200"
           />
         </div>
 
         {newAction && (
           <Link
             href={newAction.href}
-            className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition-colors"
+            className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/10 transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
             {newAction.label}
@@ -79,22 +93,22 @@ export default function TopNav() {
               className="w-8 h-8 rounded-full object-cover border border-gray-200"
             />
           ) : (
-            <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center border border-brand-200/50">
               <User className="w-4 h-4 text-brand-600" />
             </div>
           )}
           <div className="hidden md:block text-left">
-            <p className="text-xs font-medium text-gray-900 leading-tight">
-              {session?.user?.name ?? "Usuário"}
+            <p className="text-xs font-semibold text-gray-900 leading-tight">
+              {session?.user?.name ?? "John Carter"}
             </p>
-            <p className="text-xs text-gray-500 leading-tight">
-              {session?.user?.email ?? ""}
+            <p className="text-[10px] text-gray-400 font-medium leading-tight mt-0.5">
+              {session?.user?.email ?? "john.carter@jcconstruction.ca"}
             </p>
           </div>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-            title="Sair"
+            title={t("sign_out")}
           >
             <LogOut className="w-4 h-4" />
           </button>

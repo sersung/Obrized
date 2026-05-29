@@ -46,11 +46,11 @@ export default function RegisterPage() {
     setError("");
 
     if (form.password !== form.confirm) {
-      setError("As senhas não coincidem.");
+      setError("Passwords do not match.");
       return;
     }
     if (form.password.length < 6) {
-      setError("A senha deve ter no mínimo 6 caracteres.");
+      setError("Password must be at least 6 characters.");
       return;
     }
 
@@ -64,7 +64,7 @@ export default function RegisterPage() {
 
     const data = await res.json();
     if (!res.ok) {
-      setError(data.error || "Erro ao criar conta.");
+      setError(data.error || "Failed to create account.");
       setLoading(false);
       return;
     }
@@ -85,21 +85,20 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="w-full max-w-md">
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-
+    <div className="w-full max-w-md animate-fade-in">
+      <div className="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden">
         {/* Header */}
         <div className="px-8 pt-8 pb-6 border-b border-gray-50">
-          <h1 className="text-2xl font-bold text-gray-900">Criar conta</h1>
-          <p className="text-sm text-gray-500 mt-1">Plataforma gratuita para empreiteiros canadenses</p>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Create Account</h1>
+          <p className="text-xs text-gray-400 font-semibold mt-1">Free workspace for Canadian contractors</p>
         </div>
 
         <div className="px-8 py-6 space-y-4">
           {/* Benefits */}
           <div className="grid grid-cols-3 gap-2">
-            {["5 módulos de IA", "Contratos CCDC", "Prompt Payment"].map((b) => (
-              <div key={b} className="flex items-center gap-1.5 text-xs text-green-800 bg-green-50 border border-green-100 rounded-lg px-2 py-1.5">
-                <CheckCircle2 className="w-3 h-3 text-green-600 flex-shrink-0" />
+            {["5 AI Modules", "CCDC Standards", "Prompt Payment"].map((b) => (
+              <div key={b} className="flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-lg px-2 py-1.5 justify-center">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" />
                 {b}
               </div>
             ))}
@@ -110,7 +109,7 @@ export default function RegisterPage() {
             <button
               onClick={() => handleOAuth("google")}
               disabled={!!oauthLoading || loading}
-              className="flex items-center justify-center gap-2.5 border border-gray-200 rounded-xl py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-2.5 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {oauthLoading === "google" ? <Loader2 className="w-4 h-4 animate-spin" /> : <GoogleIcon />}
               Google
@@ -118,7 +117,7 @@ export default function RegisterPage() {
             <button
               onClick={() => handleOAuth("github")}
               disabled={!!oauthLoading || loading}
-              className="flex items-center justify-center gap-2.5 border border-gray-200 rounded-xl py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-2.5 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {oauthLoading === "github" ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitHubIcon />}
               GitHub
@@ -131,75 +130,77 @@ export default function RegisterPage() {
               <div className="w-full border-t border-gray-100" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-xs text-gray-400 font-medium">ou cadastre com e-mail</span>
+              <span className="bg-white px-3 text-[10px] text-gray-450 font-bold uppercase tracking-wider">
+                or sign up with email
+              </span>
             </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Nome *</label>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">First Name *</label>
                 <input
                   type="text"
                   value={form.name}
                   onChange={set("name")}
-                  placeholder="João Silva"
+                  placeholder="John"
                   required
                   autoComplete="name"
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all bg-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Empresa</label>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Company Name</label>
                 <input
                   type="text"
                   value={form.company}
                   onChange={set("company")}
-                  placeholder="Silva Construtora"
+                  placeholder="JC Construction Ltd."
                   autoComplete="organization"
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all bg-white"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">E-mail *</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Email Address *</label>
               <input
                 type="email"
                 value={form.email}
                 onChange={set("email")}
-                placeholder="joao@empresa.ca"
+                placeholder="john.carter@jcconstruction.ca"
                 required
                 autoComplete="email"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all bg-white"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Senha *</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Password *</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={form.password}
                   onChange={set("password")}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="At least 6 characters"
                   required
                   autoComplete="new-password"
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all bg-white"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-450 hover:text-gray-650 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
                 </button>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirmar Senha *</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Confirm Password *</label>
               <input
                 type="password"
                 value={form.confirm}
@@ -207,12 +208,12 @@ export default function RegisterPage() {
                 placeholder="••••••••"
                 required
                 autoComplete="new-password"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all bg-white"
               />
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-100 rounded-xl p-3 text-sm">
+              <div className="flex items-center gap-2 text-rose-700 bg-rose-50 border border-rose-100 rounded-xl p-3 text-sm font-semibold">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
@@ -221,19 +222,19 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading || !!oauthLoading}
-              className="w-full bg-brand-600 text-white py-2.5 rounded-xl font-medium hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-brand-600 text-white py-2.5 rounded-xl font-bold hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-brand-600/10 flex items-center justify-center gap-2"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-              {loading ? "Criando conta..." : "Criar conta grátis"}
+              {loading ? "Creating Account..." : "Create Free Account"}
             </button>
           </form>
         </div>
 
         {/* Footer */}
-        <div className="px-8 pb-7 text-center text-sm text-gray-500">
-          Já tem conta?{" "}
-          <Link href="/login" className="text-brand-600 font-semibold hover:text-brand-700 transition-colors">
-            Entrar
+        <div className="px-8 pb-7 text-center text-sm text-gray-450 font-medium">
+          Already have an account?{" "}
+          <Link href="/login" className="text-brand-600 font-bold hover:text-brand-700 transition-colors">
+            Sign In
           </Link>
         </div>
       </div>

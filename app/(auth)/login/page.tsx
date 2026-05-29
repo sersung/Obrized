@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, getProviders } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, LogIn, AlertCircle, Eye, EyeOff } from "lucide-react";
@@ -43,7 +43,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (res?.error) {
-      setError("E-mail ou senha incorretos.");
+      setError("Incorrect email address or password.");
     } else {
       router.push("/dashboard");
       router.refresh();
@@ -56,27 +56,26 @@ export default function LoginPage() {
   };
 
   const fillDemo = () => {
-    setEmail("demo@buildr.ai");
-    setPassword("buildr2025");
+    setEmail("john.carter@jcconstruction.ca");
+    setPassword("password123");
   };
 
   return (
-    <div className="w-full max-w-md">
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-
+    <div className="w-full max-w-md animate-fade-in">
+      <div className="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden">
         {/* Header */}
         <div className="px-8 pt-8 pb-6 border-b border-gray-50">
-          <h1 className="text-2xl font-bold text-gray-900">Entrar</h1>
-          <p className="text-sm text-gray-500 mt-1">Acesse sua conta BuildrAI</p>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Sign In</h1>
+          <p className="text-xs text-gray-400 font-semibold mt-1">Access your BuildrAI workspace</p>
         </div>
 
-        <div className="px-8 py-6 space-y-4">
+        <div className="px-8 py-6 space-y-5">
           {/* OAuth buttons */}
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => handleOAuth("google")}
               disabled={!!oauthLoading || loading}
-              className="flex items-center justify-center gap-2.5 border border-gray-200 rounded-xl py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-2.5 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {oauthLoading === "google" ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -88,7 +87,7 @@ export default function LoginPage() {
             <button
               onClick={() => handleOAuth("github")}
               disabled={!!oauthLoading || loading}
-              className="flex items-center justify-center gap-2.5 border border-gray-200 rounded-xl py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-2.5 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {oauthLoading === "github" ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -105,44 +104,44 @@ export default function LoginPage() {
               <div className="w-full border-t border-gray-100" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-xs text-gray-400 font-medium">
-                ou continue com e-mail
+              <span className="bg-white px-3 text-[10px] text-gray-450 font-bold uppercase tracking-wider">
+                or continue with email
               </span>
             </div>
           </div>
 
-          {/* Demo banner */}
-          <div className="bg-brand-50 border border-brand-100 rounded-xl px-4 py-3 flex items-center justify-between">
+          {/* Demo account */}
+          <div className="bg-brand-50 border border-brand-100 rounded-2xl px-4 py-3.5 flex items-center justify-between shadow-inner">
             <div>
-              <p className="text-xs font-semibold text-brand-800">Conta demo</p>
-              <p className="text-xs text-brand-600 mt-0.5">demo@buildr.ai · buildr2025</p>
+              <p className="text-xs font-bold text-brand-850">Demo Credentials</p>
+              <p className="text-[10px] text-brand-600 font-semibold mt-0.5">john.carter@jcconstruction.ca · password123</p>
             </div>
             <button
               onClick={fillDemo}
-              className="text-xs font-semibold text-brand-700 bg-white border border-brand-200 px-3 py-1.5 rounded-lg hover:bg-brand-100 transition-colors"
+              className="text-[10px] font-bold uppercase tracking-wide text-brand-700 bg-white border border-brand-200 px-3.5 py-1.75 rounded-lg hover:bg-brand-100 transition-colors shadow-sm"
             >
-              Preencher
+              Auto-Fill
             </button>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">E-mail</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu@email.com"
+                placeholder="your@email.com"
                 required
                 autoComplete="email"
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-shadow"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
               />
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-sm font-medium text-gray-700">Senha</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Password</label>
               </div>
               <div className="relative">
                 <input
@@ -152,20 +151,20 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   required
                   autoComplete="current-password"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-shadow"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-450 hover:text-gray-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
                 </button>
               </div>
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-100 rounded-xl p-3 text-sm">
+              <div className="flex items-center gap-2 text-rose-700 bg-rose-50 border border-rose-100 rounded-xl p-3 text-sm font-semibold">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
@@ -174,19 +173,19 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || !!oauthLoading}
-              className="w-full bg-brand-600 text-white py-2.5 rounded-xl font-medium hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-brand-600 text-white py-2.5 rounded-xl font-bold hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-brand-600/10 flex items-center justify-center gap-2"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogIn className="w-4 h-4" />}
-              {loading ? "Entrando..." : "Entrar"}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
         </div>
 
         {/* Footer */}
-        <div className="px-8 pb-7 text-center text-sm text-gray-500">
-          Não tem conta?{" "}
-          <Link href="/register" className="text-brand-600 font-semibold hover:text-brand-700 transition-colors">
-            Criar conta grátis
+        <div className="px-8 pb-7 text-center text-sm text-gray-450 font-medium">
+          New to BuildrAI?{" "}
+          <Link href="/register" className="text-brand-600 font-bold hover:text-brand-700 transition-colors">
+            Create Free Account
           </Link>
         </div>
       </div>

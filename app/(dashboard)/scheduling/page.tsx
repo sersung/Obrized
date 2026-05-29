@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   Loader2,
@@ -12,6 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations, Language } from "@/lib/translations";
 
 type TaskStatus = "not_started" | "in_progress" | "delayed" | "completed" | "blocked";
 
@@ -27,6 +28,30 @@ type Task = {
   workers: number;
 };
 
+// Bilingual translations for task names and phases
+const TASK_NAME_TRANSLATIONS: Record<string, { EN: string; FR: string }> = {
+  "Projeto Executivo e Aprovações": { EN: "Executive Design & Permits", FR: "Conception Exécutive & Permis" },
+  "Demolição e Terraplanagem": { EN: "Demolition & Excavation", FR: "Démolition & Excavation" },
+  "Fundação — Estacas e Radier": { EN: "Foundation - Piling & Slab", FR: "Fondation - Pieux & Dalle" },
+  "Estrutura de Concreto — T.S.S.": { EN: "Concrete Structure - Superstructure", FR: "Structure de Béton - Superstructure" },
+  "Alvenaria Externa": { EN: "Exterior Brickwork / Cladding", FR: "Maçonnerie Extérieure / Bardage" },
+  "Instalações Elétricas": { EN: "MEP Electrical Rough-ins", FR: "Électricité MEP" },
+  "Instalações Hidrossanitárias": { EN: "MEP Plumbing Rough-ins", FR: "Plomberie MEP" },
+  "Revestimentos Internos": { EN: "Drywall & Interior Finishes", FR: "Finitions Intérieures" },
+  "Fachada e Paisagismo": { EN: "Facade & Landscaping", FR: "Façade & Paysagement" },
+  "Vistoria Final e Habite-se": { EN: "Final Inspection & Occupancy", FR: "Inspection Finale & Occupation" },
+};
+
+const PHASE_TRANSLATIONS: Record<string, { EN: string; FR: string }> = {
+  "Pré-construção": { EN: "Pre-construction", FR: "Pré-construction" },
+  "Fundação": { EN: "Foundation", FR: "Fondation" },
+  "Estrutural": { EN: "Structural", FR: "Structure" },
+  "Vedação": { EN: "Cladding", FR: "Enveloppe" },
+  "Instalações": { EN: "MEP Services", FR: "Services MEP" },
+  "Acabamento": { EN: "Finishes", FR: "Finitions" },
+  "Encerramento": { EN: "Closeout", FR: "Clôture" },
+};
+
 const PROJECT_TASKS: Task[] = [
   { id: "1", name: "Projeto Executivo e Aprovações", phase: "Pré-construção", planned_start: "2025-01-06", planned_end: "2025-02-14", progress_pct: 100, status: "completed", is_critical: true, workers: 3 },
   { id: "2", name: "Demolição e Terraplanagem", phase: "Fundação", planned_start: "2025-02-17", planned_end: "2025-03-07", progress_pct: 100, status: "completed", is_critical: false, workers: 8 },
@@ -40,35 +65,46 @@ const PROJECT_TASKS: Task[] = [
   { id: "10", name: "Vistoria Final e Habite-se", phase: "Encerramento", planned_start: "2025-09-22", planned_end: "2025-10-03", progress_pct: 0, status: "not_started", is_critical: true, workers: 2 },
 ];
 
-const statusConfig: Record<TaskStatus, { label: string; color: string; bg: string }> = {
-  completed: { label: "Concluído", color: "text-green-700", bg: "bg-green-500" },
-  in_progress: { label: "Em Andamento", color: "text-blue-700", bg: "bg-blue-500" },
-  not_started: { label: "Não Iniciado", color: "text-gray-600", bg: "bg-gray-300" },
-  delayed: { label: "Atrasado", color: "text-red-700", bg: "bg-red-500" },
-  blocked: { label: "Bloqueado", color: "text-red-700", bg: "bg-red-300" },
-};
-
 const PROJECT_START = new Date("2025-01-06");
 const PROJECT_END = new Date("2025-10-03");
 const TOTAL_DAYS = Math.ceil((PROJECT_END.getTime() - PROJECT_START.getTime()) / 86400000);
 
-function getBarStyle(task: Task) {
-  const start = new Date(task.planned_start);
-  const end = new Date(task.planned_end);
-  const left = Math.max(0, Math.ceil((start.getTime() - PROJECT_START.getTime()) / 86400000));
-  const width = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86400000));
-  return {
-    left: `${(left / TOTAL_DAYS) * 100}%`,
-    width: `${(width / TOTAL_DAYS) * 100}%`,
-  };
-}
-
 export default function SchedulingPage() {
+  const [lang, setLang] = useState<Language>("EN");
   const [tasks, setTasks] = useState(PROJECT_TASKS);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [delayedTask, setDelayedTask] = useState<string | null>(null);
   const [delayDays, setDelayDays] = useState(14);
   const [showDelayDialog, setShowDelayDialog] = useState(false);
+  const [showCriticalPathOnly, setShowCriticalPathOnly] = useState(false);
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem("buildr_lang") as Language;
+    if (savedLang) {
+      setLang(savedLang);
+    }
+  }, []);
+
+  const { t } = useTranslations(lang);
+
+  const statusConfig: Record<TaskStatus, { label: string; color: string; bg: string }> = {
+    completed: { label: lang === "EN" ? "Completed" : "Terminée", color: "text-emerald-700", bg: "bg-emerald-500" },
+    in_progress: { label: lang === "EN" ? "In Progress" : "En cours", color: "text-blue-700", bg: "bg-blue-500" },
+    not_started: { label: lang === "EN" ? "Not Started" : "Non démarrée", color: "text-gray-500", bg: "bg-gray-300" },
+    delayed: { label: lang === "EN" ? "Delayed" : "Retardée", color: "text-rose-700", bg: "bg-rose-500" },
+    blocked: { label: lang === "EN" ? "Blocked" : "Bloquée", color: "text-rose-700", bg: "bg-rose-300" },
+  };
+
+  const getBarStyle = (task: Task) => {
+    const start = new Date(task.planned_start);
+    const end = new Date(task.planned_end);
+    const left = Math.max(0, Math.ceil((start.getTime() - PROJECT_START.getTime()) / 86400000));
+    const width = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86400000));
+    return {
+      left: `${(left / TOTAL_DAYS) * 100}%`,
+      width: `${(width / TOTAL_DAYS) * 100}%`,
+    };
+  };
 
   const handleOptimize = async () => {
     if (!delayedTask) return;
@@ -86,7 +122,7 @@ export default function SchedulingPage() {
         }),
       });
 
-      if (!response.ok) throw new Error("Falha na otimização");
+      if (!response.ok) throw new Error("Optimization failed");
       const data = await response.json();
 
       setTasks((prev) =>
@@ -95,9 +131,13 @@ export default function SchedulingPage() {
           return updated ? { ...t, ...updated } : t;
         })
       );
-      toast.success(`Cronograma recalculado pela IA. ${data.affectedCount ?? 0} tarefas ajustadas.`);
+      toast.success(
+        lang === "EN"
+          ? `Schedule recalculated. ${data.affectedCount ?? 0} tasks adjusted.`
+          : `Calendrier recalculé. ${data.affectedCount ?? 0} tâches ajustées.`
+      );
     } catch {
-      toast.error("Erro ao otimizar cronograma. Verifique sua chave de API.");
+      toast.error(lang === "EN" ? "Error optimizing schedule. Verify API key." : "Erreur d'optimisation. Vérifiez votre clé API.");
     } finally {
       setIsOptimizing(false);
       setDelayedTask(null);
@@ -105,41 +145,44 @@ export default function SchedulingPage() {
   };
 
   const phases = [...new Set(tasks.map((t) => t.phase))];
+  const months = lang === "EN"
+    ? ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"]
+    : ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct"];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-100 p-5">
-          <p className="text-2xl font-bold text-brand-600">{tasks.filter((t) => t.status === "completed").length}</p>
-          <p className="text-sm text-gray-500">Tarefas Concluídas</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-emerald-600 tracking-tight">{tasks.filter((t) => t.status === "completed").length}</p>
+          <p className="text-xs font-semibold text-gray-400 mt-1">{t("tasks_completed")}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-5">
-          <p className="text-2xl font-bold text-blue-600">{tasks.filter((t) => t.status === "in_progress").length}</p>
-          <p className="text-sm text-gray-500">Em Andamento</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-blue-600 tracking-tight">{tasks.filter((t) => t.status === "in_progress").length}</p>
+          <p className="text-xs font-semibold text-gray-400 mt-1">{t("in_progress_tasks")}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-5">
-          <p className="text-2xl font-bold text-amber-600">{tasks.filter((t) => t.is_critical).length}</p>
-          <p className="text-sm text-gray-500">Tarefas Críticas</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-rose-500 tracking-tight">{tasks.filter((t) => t.is_critical).length}</p>
+          <p className="text-xs font-semibold text-gray-400 mt-1">{t("critical_tasks")}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-5">
-          <p className="text-2xl font-bold text-gray-900">169d</p>
-          <p className="text-sm text-gray-500">Dias até Conclusão</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-slate-900 tracking-tight">169d</p>
+          <p className="text-xs font-semibold text-gray-400 mt-1">{t("days_to_completion")}</p>
         </div>
       </div>
 
       {/* Project selector */}
-      <div className="bg-white rounded-xl border border-gray-100 p-5 flex items-center justify-between">
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 flex items-center justify-between shadow-sm">
         <div>
-          <h3 className="font-semibold text-gray-900">Condomínio Maple Ridge</h3>
-          <p className="text-sm text-gray-500">Toronto, ON · Jan 2025 – Out 2025 · $1.2M</p>
+          <h3 className="font-bold text-gray-900 text-base">Maple Ridge Condominium</h3>
+          <p className="text-xs text-gray-400 font-semibold mt-1">Toronto, ON · Jan 2025 – Oct 2025 · $1.2M</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <div className="text-right">
-            <p className="text-xs text-gray-500">Progresso Geral</p>
-            <p className="font-bold text-gray-900">38%</p>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t("general_progress")}</p>
+            <p className="font-extrabold text-gray-900 text-lg mt-0.5">38%</p>
           </div>
-          <div className="w-20 bg-gray-100 rounded-full h-2">
+          <div className="w-24 bg-gray-100 rounded-full h-2 overflow-hidden border border-gray-200/50">
             <div className="bg-brand-600 h-2 rounded-full" style={{ width: "38%" }} />
           </div>
         </div>
@@ -147,32 +190,34 @@ export default function SchedulingPage() {
 
       {/* Delay dialog */}
       {showDelayDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl">
-            <h3 className="font-bold text-gray-900 text-lg mb-2">Registrar Atraso</h3>
-            <p className="text-gray-600 text-sm mb-4">
-              Informe quantos dias de atraso ocorreram. A IA irá recalcular automaticamente todo o
-              cronograma.
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border border-gray-150">
+            <h3 className="font-bold text-gray-900 text-lg mb-2">{t("register_delay")}</h3>
+            <p className="text-gray-400 font-medium text-xs mb-5 leading-relaxed">
+              {lang === "EN"
+                ? "Enter the delay period below. BuildrAI will automatically adjust dependent paths using predictive resource allocation."
+                : "Indiquez la durée du retard. BuildrAI ajustera automatiquement les chemins dépendants à l'aide de l'IA."}
             </p>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tarefa afetada
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                {lang === "EN" ? "Delayed Task" : "Tâche Retardée"}
               </label>
               <select
                 value={delayedTask ?? ""}
                 onChange={(e) => setDelayedTask(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white font-medium text-gray-700"
               >
                 {tasks
                   .filter((t) => t.status !== "completed")
-                  .map((t) => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
+                  .map((t) => {
+                    const transName = TASK_NAME_TRANSLATIONS[t.name]?.[lang] || t.name;
+                    return <option key={t.id} value={t.id}>{transName}</option>;
+                  })}
               </select>
             </div>
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Dias de atraso: <span className="text-brand-600 font-bold">{delayDays}</span>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                {t("delay_days")} <span className="text-brand-600 font-extrabold">{delayDays} {lang === "EN" ? "days" : "jours"}</span>
               </label>
               <input
                 type="range"
@@ -180,58 +225,71 @@ export default function SchedulingPage() {
                 max={60}
                 value={delayDays}
                 onChange={(e) => setDelayDays(parseInt(e.target.value))}
-                className="w-full"
+                className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-brand-600"
               />
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
-                <span>1 dia</span>
-                <span>60 dias</span>
+              <div className="flex justify-between text-[10px] font-bold text-gray-400 mt-2">
+                <span>1 {lang === "EN" ? "day" : "jour"}</span>
+                <span>60 {lang === "EN" ? "days" : "jours"}</span>
               </div>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDelayDialog(false)}
-                className="flex-1 border border-gray-200 text-gray-700 px-4 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm"
+                className="flex-1 border border-gray-250 text-gray-700 px-4 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition-colors text-sm"
               >
-                Cancelar
+                {t("cancel")}
               </button>
               <button
                 onClick={handleOptimize}
                 disabled={isOptimizing}
-                className="flex-1 bg-brand-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-brand-700 disabled:opacity-50 transition-colors text-sm flex items-center justify-center gap-2"
+                className="flex-1 bg-brand-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-brand-700 disabled:opacity-50 transition-all text-sm flex items-center justify-center gap-2"
               >
                 {isOptimizing ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkles className="w-4 h-4 text-brand-200" />
                 )}
-                Recalcular com IA
+                {t("recalculate")}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Gantt */}
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <div className="p-5 border-b border-gray-50 flex items-center justify-between">
-          <h3 className="font-semibold text-gray-900">Cronograma Gantt</h3>
+      {/* Gantt Chart */}
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-gray-50 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <h3 className="font-bold text-gray-900 text-base">{t("gantt_chart")}</h3>
+            {/* Critical Path Toggle */}
+            <button
+              onClick={() => setShowCriticalPathOnly(!showCriticalPathOnly)}
+              className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all ${
+                showCriticalPathOnly
+                  ? "bg-rose-50 border-rose-200 text-rose-700 font-extrabold"
+                  : "bg-slate-50 border-slate-200 text-slate-500"
+              }`}
+            >
+              ⚠️ {t("critical_path")}
+            </button>
+          </div>
           <button
             onClick={() => {
               setDelayedTask(tasks.find((t) => t.status === "in_progress")?.id ?? null);
               setShowDelayDialog(true);
             }}
-            className="flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors"
+            className="flex items-center gap-2 bg-amber-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-600 hover:shadow-md transition-all"
           >
             <AlertTriangle className="w-4 h-4" />
-            Registrar Atraso
+            {t("register_delay")}
           </button>
         </div>
 
         {/* Month headers */}
-        <div className="px-[200px] border-b border-gray-100 overflow-x-auto">
+        <div className="pl-[220px] pr-6 border-b border-gray-150 overflow-x-auto bg-slate-50/20">
           <div className="flex" style={{ minWidth: "800px" }}>
-            {["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out"].map((m) => (
-              <div key={m} className="flex-1 text-center text-xs text-gray-400 py-2 border-r border-gray-50 last:border-0">
+            {months.map((m) => (
+              <div key={m} className="flex-1 text-center text-[10px] font-bold text-gray-400 py-3.5 border-r border-gray-100 last:border-0 uppercase tracking-wider">
                 {m}
               </div>
             ))}
@@ -239,42 +297,48 @@ export default function SchedulingPage() {
         </div>
 
         <div className="overflow-x-auto">
-          {phases.map((phase) => (
-            <div key={phase}>
-              <div className="px-5 py-2 bg-gray-50 border-y border-gray-100">
-                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  {phase}
-                </span>
-              </div>
-              {tasks
-                .filter((t) => t.phase === phase)
-                .map((task) => {
+          {phases.map((phase) => {
+            const transPhase = PHASE_TRANSLATIONS[phase]?.[lang] || phase;
+            const phaseTasks = tasks.filter((t) => t.phase === phase && (!showCriticalPathOnly || t.is_critical));
+            
+            if (phaseTasks.length === 0) return null;
+
+            return (
+              <div key={phase}>
+                <div className="px-6 py-2.5 bg-gray-50/50 border-y border-gray-100 shadow-inner">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    {transPhase}
+                  </span>
+                </div>
+                {phaseTasks.map((task) => {
                   const barStyle = getBarStyle(task);
                   const cfg = statusConfig[task.status];
+                  const transName = TASK_NAME_TRANSLATIONS[task.name]?.[lang] || task.name;
+                  
                   return (
                     <div
                       key={task.id}
-                      className="flex items-center border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
-                      style={{ minWidth: "1000px" }}
+                      className="flex items-center border-b border-gray-50 hover:bg-gray-50/30 transition-colors"
+                      style={{ minWidth: "1020px" }}
                     >
                       {/* Task name */}
-                      <div className="w-[200px] flex-shrink-0 px-5 py-3">
+                      <div className="w-[220px] flex-shrink-0 px-6 py-4.5 border-r border-gray-50">
                         <div className="flex items-center gap-2">
                           {task.is_critical && (
-                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                            <div className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0 animate-pulse" title="Critical Path" />
                           )}
-                          <p className="text-sm text-gray-800 font-medium truncate">{task.name}</p>
+                          <p className="text-sm font-bold text-gray-800 truncate" title={transName}>{transName}</p>
                         </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className={`text-xs ${cfg.color}`}>{cfg.label}</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`text-[10px] font-bold uppercase tracking-wide ${cfg.color}`}>{cfg.label}</span>
                           {task.status === "in_progress" && (
-                            <span className="text-xs text-gray-400">{task.progress_pct}%</span>
+                            <span className="text-[10px] font-bold text-gray-400">{task.progress_pct}%</span>
                           )}
                         </div>
                       </div>
 
                       {/* Gantt bar */}
-                      <div className="flex-1 px-2 py-3 relative" style={{ height: "52px" }}>
+                      <div className="flex-1 px-4 py-3.5 relative" style={{ height: "64px" }}>
                         <div className="absolute inset-y-2 inset-x-0">
                           {/* Grid lines */}
                           <div className="absolute inset-0 flex">
@@ -284,12 +348,14 @@ export default function SchedulingPage() {
                           </div>
                           {/* Bar */}
                           <div
-                            className={`absolute h-6 top-1/2 -translate-y-1/2 rounded-md ${cfg.bg} opacity-80`}
+                            className={`absolute h-7 top-1/2 -translate-y-1/2 rounded-lg ${cfg.bg} opacity-85 shadow-sm transition-all duration-300 ${
+                              task.is_critical && showCriticalPathOnly ? "ring-2 ring-rose-500 shadow-lg shadow-rose-500/20" : ""
+                            }`}
                             style={barStyle}
                           >
                             {task.status === "in_progress" && (
                               <div
-                                className="h-full bg-blue-600 rounded-l-md"
+                                className="h-full bg-blue-600 rounded-l-lg"
                                 style={{ width: `${task.progress_pct}%` }}
                               />
                             )}
@@ -298,29 +364,30 @@ export default function SchedulingPage() {
                       </div>
 
                       {/* Workers */}
-                      <div className="w-16 flex-shrink-0 px-3 text-right">
-                        <span className="text-xs text-gray-500 flex items-center gap-1 justify-end">
-                          <Users className="w-3 h-3" /> {task.workers}
+                      <div className="w-20 flex-shrink-0 px-6 text-right">
+                        <span className="text-xs font-bold text-slate-400 flex items-center gap-1 justify-end">
+                          <Users className="w-3.5 h-3.5 text-slate-300" /> {task.workers}
                         </span>
                       </div>
                     </div>
                   );
                 })}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 text-xs text-gray-500">
-        <div className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-          Caminho Crítico
+      <div className="flex flex-wrap gap-5 text-[10px] font-bold text-gray-450 uppercase tracking-wider bg-slate-50/50 border border-gray-100 rounded-2xl p-4 shadow-inner">
+        <div className="flex items-center gap-2">
+          <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+          <span>{t("critical_path")}</span>
         </div>
         {Object.entries(statusConfig).map(([key, cfg]) => (
-          <div key={key} className="flex items-center gap-1.5">
-            <div className={`w-3 h-2 rounded-sm ${cfg.bg}`} />
-            {cfg.label}
+          <div key={key} className="flex items-center gap-2">
+            <div className={`w-4 h-2.5 rounded-sm ${cfg.bg}`} />
+            <span>{cfg.label}</span>
           </div>
         ))}
       </div>

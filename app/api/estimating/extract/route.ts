@@ -20,14 +20,14 @@ export async function POST(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        controller.enqueue(encoder.encode(sse({ type: "log", message: "📄 Lendo arquivo PDF..." })));
+        controller.enqueue(encoder.encode(sse({ type: "log", message: "📄 Reading PDF blueprint file..." })));
 
         // Read PDF as base64 for Claude Vision
         const buffer = await file.arrayBuffer();
         const base64 = Buffer.from(buffer).toString("base64");
 
         controller.enqueue(
-          encoder.encode(sse({ type: "log", message: "🤖 Analisando planta com Gemini Vision..." }))
+          encoder.encode(sse({ type: "log", message: "🤖 Analyzing drawing with Gemini Vision..." }))
         );
 
         const geminiModel = genAI.getGenerativeModel({ model: MODEL });
