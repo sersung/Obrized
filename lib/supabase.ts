@@ -36,7 +36,7 @@ class LocalQueryBuilder {
             name: "John Carter",
             company: "JC Construction Ltd.",
             // Bcrypt of "password123"
-            password_hash: "$2a$10$tZ2c6C/qZ7Q5H5UqIuO8aee3a/1/gO3dF7b5qg5Y5Q5h8/4K8pbeS",
+            password_hash: "$2b$10$DqK8R1MGY04Hz.G66yCM9.ztHJOO7xeFxmPSwSNXas8TCVwmRbFAq",
             provider: "credentials",
             avatar_url: null,
             created_at: new Date().toISOString()
