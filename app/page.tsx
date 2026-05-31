@@ -43,6 +43,9 @@ export default function LandingPage() {
   
   // Recalculating Schedule Demo State
   const [demoDelayDays, setDemoDelayDays] = useState<number>(14);
+  
+  // Billing interval state
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "annually">("monthly");
 
   useEffect(() => {
     const savedLang = localStorage.getItem("buildr_lang") as Language;
@@ -75,24 +78,43 @@ export default function LandingPage() {
 
   // Quiz submission evaluation
   const getQuizRecommendation = () => {
+    const isAnnually = billingInterval === "annually";
     if (contractorType === "Enterprise" || projectVolume === "10+") {
       return {
-        tier: "Enterprise Custom",
-        price: "Custom Quote",
-        desc: lang === "EN" ? "For large homebuilders & commercial firms requiring custom integrations, unlimited CCDC reviews, and dedicated COR audits." : "Pour les grands constructeurs et entreprises commerciales nécessitant des intégrations sur mesure et des audits COR dédiés."
+        tier: lang === "PT" ? "Plano Pro" : lang === "ES" ? "Plan Pro" : lang === "FR" ? "Forfait Pro" : "Pro Plan",
+        price: isAnnually ? "$159 CAD / mo" : "$189 CAD / mo",
+        desc: lang === "EN" 
+          ? "For small to medium GCs and specialty contractors requiring unlimited projects, unlimited AI takeoffs, voice logs, and NBC compliance checks."
+          : lang === "FR"
+          ? "Pour les entrepreneurs généraux et spécialisés nécessitant des projets illimités, des analyses d'IA illimitées et la conformité NBC."
+          : lang === "PT"
+          ? "Para GCs de pequeno e médio porte e subempreiteiros que exigem projetos ilimitados, análises de plantas ilimitadas por IA, RDO por voz e conformidade NBC."
+          : "Para contratistas generales y especializados que requieren proyectos ilimitados, análisis de planos ilimitados por IA, RDO por voz y cumplimiento NBC."
       };
     }
     if (contractorType === "General" || projectVolume === "4-10") {
       return {
-        tier: "Growth Plan",
-        price: "$249 / month",
-        desc: lang === "EN" ? "Perfect for growing General Contractors doing full CCDC projects, detailed schedules, and automated invoices." : "Parfait pour les entrepreneurs généraux en croissance gérant des projets CCDC et des calendriers complexes."
+        tier: lang === "PT" ? "Plano Starter" : lang === "ES" ? "Plan Starter" : lang === "FR" ? "Forfait Starter" : "Starter Plan",
+        price: isAnnually ? "$69 CAD / mo" : "$79 CAD / mo",
+        desc: lang === "EN"
+          ? "Ideal for smaller trades and contractors. Includes 10 active projects, 30 AI blueprint analyses/mo, Gantt scheduling, and WSIB compliance templates."
+          : lang === "FR"
+          ? "Idéal pour les petits entrepreneurs. Comprend 10 projets actifs, 30 analyses d'IA/mois, planification Gantt et modèles de conformité WSIB."
+          : lang === "PT"
+          ? "Ideal para pequenos empreiteiros e trades. Inclui 10 projetos ativos, 30 análises de planta por IA/mês, cronograma Gantt e templates WSIB."
+          : "Ideal para pequeños contratistas y trades. Incluye 10 proyectos activos, 30 análisis de planos por IA/mes, cronograma Gantt y plantillas WSIB."
       };
     }
     return {
-      tier: "Starter Plan",
-      price: "$99 / month",
-      desc: lang === "EN" ? "Ideal for trade contractors, specialty trades, and independent remodelers needing voice safety logs & basic takeoffs." : "Idéal pour les sous-traitants, les métiers spécialisés et les rénovateurs indépendants."
+      tier: lang === "PT" ? "Plano Gratuito" : lang === "ES" ? "Plan Gratuito" : lang === "FR" ? "Forfait Gratuit" : "Free Plan",
+      price: "$0 CAD / mo",
+      desc: lang === "EN"
+        ? "Perfect to test our features. Try up to 3 AI blueprint analyses, 2 active projects, static CCDC templates, and basic WSIB safety logs."
+        : lang === "FR"
+        ? "Parfait pour tester nos fonctionnalités. Essayez jusqu'à 3 analyses d'IA, 2 projets actifs et des modèles de sécurité WSIB de base."
+        : lang === "PT"
+        ? "Perfeito para testar nossos recursos. Experimente até 3 análises de planta por IA, 2 projetos ativos, templates estáticos CCDC e logs WSIB."
+        : "Perfecto para probar nuestras funciones. Experimente hasta 3 análisis de planos por IA, 2 proyectos activos, plantillas estáticas CCDC y registros WSIB."
     };
   };
 
@@ -803,57 +825,146 @@ export default function LandingPage() {
 
       {/* Pricing Section with custom Quiz trigger */}
       <section id="pricing" className="py-24 bg-slate-950 border-t border-slate-900 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white font-display tracking-tight">Simple, Transparent Pricing</h2>
-            <p className="text-slate-400 text-sm font-semibold max-w-xl mx-auto mt-2">Choose the plan that matches your project scale, or take our custom fit quiz.</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-center mb-6">
+            <h2 className="text-3xl sm:text-5xl font-extrabold text-white font-display tracking-tight">
+              {lang === "EN" ? "Simple, Transparent Pricing" : lang === "FR" ? "Tarification Simple & Transparente" : lang === "PT" ? "Preços Simples e Transparentes" : "Precios Simples y Transparentes"}
+            </h2>
+            <p className="text-slate-400 text-sm font-semibold max-w-xl mx-auto mt-2">
+              {lang === "EN" ? "Choose the plan that matches your project scale, or take our custom fit quiz." : lang === "FR" ? "Choisissez le forfait adapté à vos projets, ou faites notre test." : lang === "PT" ? "Escolha o plano que melhor se adapta à escala dos seus projetos ou faça o nosso quiz de adequação." : "Elija el plan que mejor se adapte a sus proyectos o realice nuestro cuestionario."}
+            </p>
+          </div>
+
+          {/* CDAP Grant Voucher Badge */}
+          <div className="inline-flex items-center gap-2.5 bg-emerald-500/10 text-emerald-400 text-xs font-bold px-4 py-2 rounded-full mb-10 border border-emerald-500/20 shadow-lg">
+            <Award className="w-4 h-4 text-emerald-400" />
+            <span>
+              {lang === "EN" ? "Eligible for CDAP funding — get up to $15,000 to cover your subscription" : lang === "FR" ? "Admissible au PCAN — obtenez jusqu'à 15 000 $ pour votre abonnement" : lang === "PT" ? "Qualificado para subsídio CDAP — receba até $15.000 CAD para cobrir sua assinatura" : "Elegible para financiamiento CDAP — obtenga hasta $15,000 para su suscripción"}
+            </span>
+          </div>
+
+          {/* Billing Interval Toggle Switch */}
+          <div className="flex justify-center items-center gap-4 mb-12">
+            <span className={`text-xs font-black uppercase tracking-wider transition-colors duration-200 ${billingInterval === "monthly" ? "text-white" : "text-slate-500"}`}>
+              {lang === "EN" ? "Billed Monthly" : lang === "FR" ? "Mensuel" : lang === "PT" ? "Mensal" : "Mensual"}
+            </span>
+            <button
+              onClick={() => setBillingInterval(billingInterval === "monthly" ? "annually" : "monthly")}
+              className="relative w-14 h-7 bg-slate-900 rounded-full border border-slate-800 p-0.5 flex items-center transition-all duration-300"
+            >
+              <div className={`w-5.5 h-5.5 bg-gradient-to-tr from-amber-500 to-orange-600 rounded-full shadow-md transform transition-transform duration-300 ${billingInterval === "annually" ? "translate-x-7" : "translate-x-0"}`} />
+            </button>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-black uppercase tracking-wider transition-colors duration-200 ${billingInterval === "annually" ? "text-amber-400" : "text-slate-500"}`}>
+                {lang === "EN" ? "Billed Annually" : lang === "FR" ? "Annuel" : lang === "PT" ? "Anual" : "Anual"}
+              </span>
+              <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider">
+                {lang === "EN" ? "Save ~15%" : lang === "FR" ? "Économisez ~15%" : lang === "PT" ? "Economize ~15%" : "Ahorre ~15%"}
+              </span>
+            </div>
           </div>
 
           {/* Pricing Grid */}
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">
-            {/* Starter Plan */}
-            <div className="bg-slate-900 border border-slate-850 rounded-3xl p-8 space-y-6 flex flex-col justify-between shadow-xl">
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16 text-left">
+            {/* Free Plan */}
+            <div className="bg-slate-900 border border-slate-850 rounded-3xl p-8 space-y-6 flex flex-col justify-between shadow-xl relative overflow-hidden">
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Starter</p>
-                  <p className="text-4xl font-extrabold text-white mt-2 font-display">$99<span className="text-xs text-slate-400">/mo</span></p>
-                  <p className="text-xs text-slate-400 mt-1 font-semibold">Best for specialty trade contractors.</p>
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest">
+                    {lang === "EN" ? "Free" : lang === "FR" ? "Gratuit" : lang === "PT" ? "Gratuito" : "Gratuito"}
+                  </p>
+                  <p className="text-4xl font-extrabold text-white mt-2 font-display">$0<span className="text-xs text-slate-400">/mo</span></p>
+                  <p className="text-xs text-slate-400 mt-1 font-semibold">
+                    {lang === "EN" ? "Permanent tier with volume gates." : lang === "FR" ? "Forfait permanent avec limites de volume." : lang === "PT" ? "Plano permanente com limites (gates)." : "Plan permanente con límites de volumen."}
+                  </p>
                 </div>
                 <div className="border-t border-slate-850/80 pt-4 space-y-3 text-xs text-slate-300 font-bold">
-                  <div className="flex gap-2 items-center">✓ 3 PDF Takeoff Estimates / Mo</div>
-                  <div className="flex gap-2 items-center">✓ Unlimited Voice Safety Logs</div>
-                  <div className="flex gap-2 items-center">✓ WSIB clearance compliance</div>
-                  <div className="flex gap-2 items-center">✓ Basic 28-day prompt payment tracker</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "2 projetos simultâneos" : lang === "FR" ? "2 projets simultanés" : lang === "ES" ? "2 proyectos simultáneos" : "2 simultaneous active projects"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Estimativas manuais ilimitadas (sem IA)" : lang === "FR" ? "Estimations manuelles illimitées (sans IA)" : lang === "ES" ? "Estimaciones manuales ilimitadas (sin IA)" : "Unlimited manual estimates (no AI)"}</div>
+                  <div className="flex gap-2 items-center text-amber-400">✓ {lang === "PT" ? "3 análises de plantas/mês por IA" : lang === "FR" ? "3 analyses de plans/mois par IA" : lang === "ES" ? "3 análisis de planos/mes por IA" : "3 AI blueprint analyses / month"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Lista de materiais incluída nos 3 créditos" : lang === "FR" ? "Liste de matériaux incluse dans les crédits" : lang === "ES" ? "Lista de materiales incluida en créditos" : "Materials list included in AI credits"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "RDO digital limitado (5/mês)" : lang === "FR" ? "Rapport quotidien limité (5/mois)" : lang === "ES" ? "Reportes de obra limitados (5/mes)" : "Digital Daily Reports limited (5 / month)"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Templates de segurança WSIB básicos" : lang === "FR" ? "Modèles de sécurité WSIB de base" : lang === "ES" ? "Plantillas WSIB básicas" : "Basic Safety & WSIB templates"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Visualização de cronograma (Gantt)" : lang === "FR" ? "Planification Gantt (lecture seule)" : lang === "ES" ? "Programación Gantt (solo lectura)" : "View-only Gantt scheduling"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Templates estáticos CCDC" : lang === "FR" ? "Modèles CCDC statiques" : lang === "ES" ? "Plantillas estáticas CCDC" : "Static CCDC contract templates"}</div>
+                  <div className="flex gap-2 items-center text-slate-500">✗ {lang === "PT" ? "Sem portal do cliente" : lang === "FR" ? "Pas de portail client" : lang === "ES" ? "Sin portal del cliente" : "No client portal included"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Suporte via comunidade e docs" : lang === "FR" ? "Support communauté + documents" : lang === "ES" ? "Soporte de comunidad + docs" : "Community & documentation support"}</div>
                 </div>
               </div>
+
+              {/* Gate Prompt Alert Box */}
+              <div className="mt-4 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 text-[10px] leading-relaxed text-amber-300 font-semibold flex items-start gap-1.5 shadow-inner">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-extrabold uppercase text-[8px] tracking-wider text-amber-400">
+                    {lang === "PT" ? "Aviso de Limite de Créditos" : lang === "FR" ? "Alerte de Limite de Crédit" : lang === "ES" ? "Alerta de Límite de Crédito" : "Credit Limit Alert"}
+                  </p>
+                  <p className="mt-0.5">
+                    {lang === "PT" 
+                      ? 'Lógica de Gate: "Você atingiu seus 3 créditos de análise de IA este mês. Faça upgrade para análises ilimitadas."' 
+                      : lang === "FR" 
+                      ? '"Vous avez atteint vos 3 crédits d\'analyse IA ce mois-ci. Passez à la version supérieure pour des analyses illimitées."' 
+                      : lang === "ES"
+                      ? '"Ha alcanzado sus 3 créditos de análisis de IA este mes. Actualice para análisis ilimitados."'
+                      : '"You have reached your 3 AI analysis credits this month. Upgrade to unlimited analyses."'}
+                  </p>
+                </div>
+              </div>
+
               <button
                 onClick={() => {
                   setContractorType("Trade");
                   setProjectVolume("1-3");
                   setShowQuiz(true);
-                  setQuizStep(3); // Direct evaluation output
+                  setQuizStep(3);
                 }}
-                className="w-full bg-slate-950 text-slate-350 hover:text-white border border-slate-800 hover:bg-slate-900 py-3 rounded-xl text-xs font-black transition-all duration-200"
+                className="w-full bg-slate-950 text-slate-350 hover:text-white border border-slate-800 hover:bg-slate-900 py-3.5 rounded-xl text-xs font-black transition-all duration-200 mt-2"
               >
-                Choose Starter
+                {lang === "EN" ? "Choose Free" : lang === "FR" ? "Choisir Gratuit" : lang === "PT" ? "Escolher Grátis" : "Elegir Gratis"}
               </button>
             </div>
 
-            {/* Growth Plan - Highlighted */}
-            <div className="bg-slate-900 border-2 border-amber-500 rounded-3xl p-8 space-y-6 flex flex-col justify-between shadow-2xl relative">
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 text-[9px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full border border-slate-950 shadow-md">Most Popular</div>
+            {/* Starter Plan */}
+            <div className="bg-slate-900 border border-slate-850 rounded-3xl p-8 space-y-6 flex flex-col justify-between shadow-xl relative overflow-hidden">
+              {/* Pro Trial Notification Highlight */}
+              <div className="absolute top-0 right-0 bg-amber-500/10 text-amber-400 text-[8px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-2xl border-l border-b border-amber-500/20">
+                {lang === "EN" ? "14-Day Pro Trial Included" : lang === "FR" ? "Essai Pro 14 jours inclus" : lang === "PT" ? "14 Dias de Teste Pro Incluídos" : "Prueba Pro de 14 días incluida"}
+              </div>
+
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-black text-amber-400 uppercase tracking-widest">Growth</p>
-                  <p className="text-4xl font-extrabold text-white mt-2 font-display">$249<span className="text-xs text-slate-400">/mo</span></p>
-                  <p className="text-xs text-amber-400 mt-1 font-semibold">Perfect for growing General Contractors.</p>
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Starter</p>
+                  <p className="text-4xl font-extrabold text-white mt-2 font-display">
+                    {billingInterval === "annually" ? "$69" : "$79"}
+                    <span className="text-xs text-slate-400"> CAD/mo</span>
+                  </p>
+                  <p className="text-[10px] text-slate-400 font-semibold mt-1">
+                    {billingInterval === "annually" ? (lang === "EN" ? "$828 billed annually ($69/mo)" : lang === "FR" ? "828 $ facturé annuellement" : lang === "PT" ? "$828 CAD faturado anualmente" : "$828 facturado anualmente") : (lang === "EN" ? "Billed monthly" : lang === "FR" ? "Facturé mensuellement" : lang === "PT" ? "Faturamento mensal" : "Facturado mensualmente")}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-2.5 font-semibold">
+                    {lang === "EN" ? "Perfect for small contractors, trades, and subtrades (1-5 projects/yr)." : lang === "FR" ? "Parfait pour les petits entrepreneurs et sous-traitants." : lang === "PT" ? "Ideal para pequenos empreiteiros, trades e subempreiteiros (1–5 projetos/ano)." : "Perfecto para pequeños contratistas y subcontratistas."}
+                  </p>
                 </div>
-                <div className="border-t border-slate-800 pt-4 space-y-3 text-xs text-slate-200 font-bold">
-                  <div className="flex gap-2 items-center">✓ 15 PDF Takeoff Estimates / Mo</div>
-                  <div className="flex gap-2 items-center">✓ Unlimited CCDC Risk Clause reviews</div>
-                  <div className="flex gap-2 items-center">✓ Predictive Critical Path Gantt schedule</div>
-                  <div className="flex gap-2 items-center">✓ Full COR Audit safety compliance checklist</div>
-                  <div className="flex gap-2 items-center">✓ Automated Proper Invoices & waivers</div>
+                
+                {/* Annual Prepaid Bonus Alert */}
+                {billingInterval === "annually" && (
+                  <div className="bg-amber-500/10 text-amber-400 text-[10px] font-extrabold px-3 py-2 rounded-xl border border-amber-500/20">
+                    🎁 {lang === "EN" ? "Annual Bonus: 2 Months Free + 100 Bonus AI Credits!" : lang === "FR" ? "Bonus Annuel: 2 mois gratuits + 100 crédits IA!" : lang === "PT" ? "Bônus Anual: 2 Meses Grátis + 100 Créditos de IA Bônus!" : "¡Bono Anual: 2 meses gratis + 100 créditos de IA!"}
+                  </div>
+                )}
+
+                <div className="border-t border-slate-850/80 pt-4 space-y-3 text-xs text-slate-300 font-bold">
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "10 projetos simultâneos" : lang === "FR" ? "10 projets simultanés" : lang === "ES" ? "10 proyectos simultáneos" : "10 simultaneous active projects"}</div>
+                  <div className="flex gap-2 items-center text-amber-400">✓ {lang === "PT" ? "30 análises de plantas/mês por IA" : lang === "FR" ? "30 analyses de plans/mois par IA" : lang === "ES" ? "30 análisis de planos/mes por IA" : "30 AI blueprint analyses / month"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Lista de materiais ilimitada nos créditos" : lang === "FR" ? "Matériaux illimités dans les crédits" : lang === "ES" ? "Materiales ilimitados en créditos" : "Unlimited Materials List within credits"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "RDO digital ilimitado" : lang === "FR" ? "Rapport quotidien illimité" : lang === "ES" ? "Reportes de obra ilimitados" : "Unlimited digital daily reports"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Segurança WSIB completa + notificações" : lang === "FR" ? "WSIB complet + notifications" : lang === "ES" ? "Seguridad WSIB completa + alertas" : "Full Safety/WSIB templates & notifications"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Scheduling básico Gantt simples" : lang === "FR" ? "Planification Gantt simple" : lang === "ES" ? "Programación Gantt simple" : "Basic Gantt scheduling"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "5 contratos CCDC digitais/mês" : lang === "FR" ? "5 contrats CCDC par mois" : lang === "ES" ? "5 contratos CCDC al mes" : "5 digital CCDC contracts / month"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Rastreamento de Prompt Payment" : lang === "FR" ? "Suivi du paiement rapide" : lang === "ES" ? "Seguimiento de pago rápido" : "Prompt Payment tracking"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "1 portal do cliente ativo" : lang === "FR" ? "1 portail client actif" : lang === "ES" ? "1 portal de cliente activo" : "1 active customer portal"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Suporte via chat + email" : lang === "FR" ? "Support chat + e-mail" : lang === "ES" ? "Soporte por chat + email" : "Chat + email support (Business hours)"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Exportação ilimitada (PDF/CSV)" : lang === "FR" ? "Exportations illimitées (PDF/CSV)" : lang === "ES" ? "Exportaciones ilimitadas (PDF/CSV)" : "Unlimited Export (PDF/CSV)"}</div>
                 </div>
               </div>
               <button
@@ -861,28 +972,59 @@ export default function LandingPage() {
                   setContractorType("General");
                   setProjectVolume("4-10");
                   setShowQuiz(true);
-                  setQuizStep(3); // Direct evaluation output
+                  setQuizStep(3);
                 }}
-                className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 py-3 rounded-xl text-xs font-black transition-all duration-200 shadow-lg shadow-amber-500/10"
+                className="w-full bg-slate-950 text-slate-350 hover:text-white border border-slate-800 hover:bg-slate-900 py-3.5 rounded-xl text-xs font-black transition-all duration-200 mt-2"
               >
-                Choose Growth
+                {lang === "EN" ? "Choose Starter" : lang === "FR" ? "Choisir Starter" : lang === "PT" ? "Escolher Starter" : "Elegir Starter"}
               </button>
             </div>
 
-            {/* Enterprise Plan */}
-            <div className="bg-slate-900 border border-slate-850 rounded-3xl p-8 space-y-6 flex flex-col justify-between shadow-xl">
+            {/* Pro Plan - Highlighted */}
+            <div className="bg-slate-900 border-2 border-amber-500 rounded-3xl p-8 space-y-6 flex flex-col justify-between shadow-2xl relative">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 text-[9px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full border border-slate-950 shadow-md">
+                {lang === "EN" ? "RECOMMENDED" : lang === "FR" ? "RECOMMANDÉ" : lang === "PT" ? "RECOMENDADO" : "RECOMENDADO"}
+              </div>
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Enterprise</p>
-                  <p className="text-4xl font-extrabold text-white mt-2 font-display">Custom</p>
-                  <p className="text-xs text-slate-400 mt-1 font-semibold">For large builders & multi-trade companies.</p>
+                  <p className="text-xs font-black text-amber-400 uppercase tracking-widest">Pro</p>
+                  <p className="text-4xl font-extrabold text-white mt-2 font-display">
+                    {billingInterval === "annually" ? "$159" : "$189"}
+                    <span className="text-xs text-slate-400"> CAD/mo</span>
+                  </p>
+                  <p className="text-[10px] text-amber-400 font-semibold mt-1">
+                    {billingInterval === "annually" ? (lang === "EN" ? "$1,908 billed annually ($159/mo)" : lang === "FR" ? "1 908 $ facturé annuellement" : lang === "PT" ? "$1.908 CAD faturado anualmente" : "$1,908 facturado anualmente") : (lang === "EN" ? "Billed monthly" : lang === "FR" ? "Facturé mensuellement" : lang === "PT" ? "Faturamento mensal" : "Facturado mensuellement")}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-2.5 font-semibold">
+                    {lang === "EN" ? "For small & medium GCs, specialty contractors with higher volume (5-20 projects/yr)." : lang === "FR" ? "Pour les entrepreneurs généraux et spécialisés à volume élevé." : lang === "PT" ? "Para GCs pequenos e médios, specialty contractors com maior volume (5–20 projetos/ano)." : "Para contratistas generales y subcontratistas con mayor volumen."}
+                  </p>
+                  <p className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded mt-2.5 inline-block font-extrabold">
+                    {lang === "EN" ? "+$15 CAD / user / month (first 3 included)" : lang === "FR" ? "+15 $ CAD / utilisateur / mois (3 inclus)" : lang === "PT" ? "+$15 CAD / usuário / mês (primeiros 3 incluídos)" : "+$15 CAD / usuario / mes (primeros 3 incluidos)"}
+                  </p>
                 </div>
-                <div className="border-t border-slate-850/80 pt-4 space-y-3 text-xs text-slate-300 font-bold">
-                  <div className="flex gap-2 items-center">✓ Unlimited Estimating takeoffs</div>
-                  <div className="flex gap-2 items-center">✓ Unlimited CCDC reviews & custom API keys</div>
-                  <div className="flex gap-2 items-center">✓ Enterprise CRM and accounting integrations</div>
-                  <div className="flex gap-2 items-center">✓ Multi-company dashboard accounts</div>
-                  <div className="flex gap-2 items-center">✓ Custom onboarding & WSIB training</div>
+
+                {/* Annual Prepaid Bonus Alert */}
+                {billingInterval === "annually" && (
+                  <div className="bg-amber-500/10 text-amber-400 text-[10px] font-extrabold px-3 py-2 rounded-xl border border-amber-500/20">
+                    🎁 {lang === "EN" ? "Annual Bonus: 2 Months Free + Unlimited AI Access!" : lang === "FR" ? "Bonus Annuel: 2 mois gratuits + Accès IA illimité!" : lang === "PT" ? "Bônus Anual: 2 Meses Grátis + Acesso Ilimitado à IA!" : "¡Bono Anual: 2 meses gratis + Acceso IA ilimitado!"}
+                  </div>
+                )}
+
+                <div className="border-t border-slate-800 pt-4 space-y-3 text-xs text-slate-200 font-bold">
+                  <div className="flex gap-2 items-center text-amber-400">✓ {lang === "PT" ? "Projetos ativos ilimitados" : lang === "FR" ? "Projets illimités" : lang === "ES" ? "Proyectos ilimitados" : "Unlimited active projects"}</div>
+                  <div className="flex gap-2 items-center text-amber-400">✓ {lang === "PT" ? "Análise de plantas por IA ilimitada" : lang === "FR" ? "Analyses de plans d'IA illimitées" : lang === "ES" ? "Análisis de planos por IA ilimitados" : "Unlimited AI blueprint takeoffs"}</div>
+                  <div className="flex gap-2 items-center text-amber-400">✓ {lang === "PT" ? "Lista de materiais por IA ilimitada" : lang === "FR" ? "Liste de matériaux d'IA illimitée" : lang === "ES" ? "Lista de materiales de IA ilimitada" : "Unlimited AI Materials list"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "AI de voz para relatórios de campo (RDO)" : lang === "FR" ? "IA de voix pour rapports de chantier" : lang === "ES" ? "IA de voz para reportes de obra" : "Voice AI for field daily logs"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Safety/WSIB avançado: COR, incidentes, OSHA" : lang === "FR" ? "SST avancé: COR, incidents, OSHA" : lang === "ES" ? "SST avanzado: COR, incidentes, OSHA" : "Advanced Safety/WSIB: COR compliance & incidents"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Scheduling avançado: Gantt + CPM + dep." : lang === "FR" ? "Calendrier avancé: Gantt + CPM + dép." : lang === "ES" ? "Calendario avanzado: Gantt + CPM + dep." : "Advanced Scheduling: Gantt + CPM + dependencies"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Contratos CCDC digitais ilimitados" : lang === "FR" ? "Contrats CCDC numériques illimités" : lang === "ES" ? "Contratos CCDC digitales ilimitados" : "Unlimited digital CCDC contracts"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Prompt Payment: alertas por província" : lang === "FR" ? "Paiement rapide: alertes provinciales" : lang === "ES" ? "Pago rápido: alertas provinciales" : "Prompt Payment: automatic provincial alerts"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Portal do cliente ilimitado" : lang === "FR" ? "Portails clients illimités" : lang === "ES" ? "Portales de clientes ilimitados" : "Unlimited active customer portals"}</div>
+                  <div className="flex gap-2 items-center text-amber-400">✓ {lang === "PT" ? "NBC compliance checks (Código de Construção)" : lang === "FR" ? "Contrôles de conformité NBC" : lang === "ES" ? "Controles de conformidad NBC" : "National Building Code (NBC) compliance checks"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Relatórios financeiros e job costing" : lang === "FR" ? "Rapports financiers et job costing" : lang === "ES" ? "Reportes financieros y job costing" : "Financial reports: Job costing & margins"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Integrações: QuickBooks, Xero" : lang === "FR" ? "Intégrations QuickBooks & Xero" : lang === "ES" ? "Integraciones con QuickBooks & Xero" : "QuickBooks & Xero integrations"}</div>
+                  <div className="flex gap-2 items-center text-emerald-400">✓ {lang === "PT" ? "Assistente de elegibilidade CDAP/Grant" : lang === "FR" ? "Assistant de subvention CDAP" : lang === "ES" ? "Asistente de subsidios CDAP" : "CDAP / Grant assistance & eligibility guide"}</div>
+                  <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Suporte prioritário e chat ao vivo" : lang === "FR" ? "Support prioritaire et chat en direct" : lang === "ES" ? "Soporte prioritario y chat en vivo" : "Priority live chat support 24/7"}</div>
                 </div>
               </div>
               <button
@@ -890,11 +1032,11 @@ export default function LandingPage() {
                   setContractorType("Enterprise");
                   setProjectVolume("10+");
                   setShowQuiz(true);
-                  setQuizStep(3); // Direct evaluation output
+                  setQuizStep(3);
                 }}
-                className="w-full bg-slate-950 text-slate-350 hover:text-white border border-slate-800 hover:bg-slate-900 py-3 rounded-xl text-xs font-black transition-all duration-200"
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 py-3.5 rounded-xl text-xs font-black transition-all duration-200 shadow-lg shadow-amber-500/10 mt-2"
               >
-                Contact Sales
+                {lang === "EN" ? "Choose Pro" : lang === "FR" ? "Choisir Pro" : lang === "PT" ? "Escolher Pro" : "Elegir Pro"}
               </button>
             </div>
           </div>
