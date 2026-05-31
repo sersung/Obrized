@@ -27,6 +27,7 @@ import { useTranslations, Language } from "@/lib/translations";
 
 export default function LandingPage() {
   const [lang, setLang] = useState<Language>("EN");
+  const [showLangMenu, setShowLangMenu] = useState<boolean>(false);
   const [activePersona, setActivePersona] = useState<"gc" | "trade" | "owner">("gc");
   const [activeMockup, setActiveMockup] = useState<"takeoff" | "contract" | "schedule" | "safety">("takeoff");
   
@@ -50,14 +51,10 @@ export default function LandingPage() {
     }
   }, []);
 
-  const toggleLanguage = () => {
-    let nextLang: Language = "EN";
-    if (lang === "EN") nextLang = "FR";
-    else if (lang === "FR") nextLang = "PT";
-    else if (lang === "PT") nextLang = "ES";
-    else nextLang = "EN";
-    localStorage.setItem("buildr_lang", nextLang);
-    setLang(nextLang);
+  const selectLanguage = (selectedLang: Language) => {
+    localStorage.setItem("buildr_lang", selectedLang);
+    setLang(selectedLang);
+    setShowLangMenu(false);
     window.location.reload();
   };
 
@@ -134,13 +131,40 @@ export default function LandingPage() {
           </nav>
           <div className="flex items-center gap-4">
             {/* Language switcher */}
-            <button
-              onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900 transition-all duration-200"
-            >
-              <Globe className="w-3.5 h-3.5 text-amber-500" />
-              <span>{lang}</span>
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowLangMenu(!showLangMenu)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900 transition-all duration-200"
+              >
+                <Globe className="w-3.5 h-3.5 text-amber-500" />
+                <span>{lang}</span>
+              </button>
+
+              {/* Language Dropdown Menu */}
+              {showLangMenu && (
+                <div className="absolute right-0 top-full mt-2 w-32 bg-slate-900 border border-slate-800 rounded-2xl p-2 shadow-2xl z-50 space-y-1 animate-fade-in">
+                  {[
+                    { code: "EN" as Language, label: "English" },
+                    { code: "FR" as Language, label: "Français" },
+                    { code: "PT" as Language, label: "Português" },
+                    { code: "ES" as Language, label: "Español" },
+                  ].map((l) => (
+                    <button
+                      key={l.code}
+                      onClick={() => selectLanguage(l.code)}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between ${
+                        lang === l.code
+                          ? "bg-amber-500 text-slate-950"
+                          : "text-slate-400 hover:text-white hover:bg-slate-850"
+                      }`}
+                    >
+                      <span>{l.label}</span>
+                      {lang === l.code && <CheckCircle2 className="w-3.5 h-3.5 text-slate-950" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <Link
               href="/dashboard"
               className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 px-5 py-2.5 rounded-xl text-sm font-extrabold hover:shadow-lg hover:shadow-amber-500/15 transition-all duration-300 flex items-center gap-2"

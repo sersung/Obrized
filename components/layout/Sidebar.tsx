@@ -14,6 +14,7 @@ import {
   Settings as SettingsIcon,
   ChevronRight,
   Globe,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations, Language } from "@/lib/translations";
@@ -21,6 +22,7 @@ import { useTranslations, Language } from "@/lib/translations";
 export default function Sidebar() {
   const pathname = usePathname();
   const [lang, setLang] = useState<Language>("EN");
+  const [showLangMenu, setShowLangMenu] = useState(false);
 
   useEffect(() => {
     const savedLang = localStorage.getItem("buildr_lang") as Language;
@@ -29,14 +31,10 @@ export default function Sidebar() {
     }
   }, []);
 
-  const toggleLanguage = () => {
-    let nextLang: Language = "EN";
-    if (lang === "EN") nextLang = "FR";
-    else if (lang === "FR") nextLang = "PT";
-    else if (lang === "PT") nextLang = "ES";
-    else nextLang = "EN";
-    localStorage.setItem("buildr_lang", nextLang);
-    setLang(nextLang);
+  const selectLanguage = (selectedLang: Language) => {
+    localStorage.setItem("buildr_lang", selectedLang);
+    setLang(selectedLang);
+    setShowLangMenu(false);
     window.location.reload();
   };
 
@@ -123,10 +121,35 @@ export default function Sidebar() {
       </div>
 
       {/* Bottom Section */}
-      <div className="p-4 border-t border-slate-900/60 space-y-3">
+      <div className="p-4 border-t border-slate-900/60 space-y-3 relative">
+        {/* Language Popover Menu */}
+        {showLangMenu && (
+          <div className="absolute bottom-full left-4 right-4 mb-2 bg-slate-900 border border-slate-800 rounded-2xl p-2 shadow-2xl z-50 space-y-1 animate-fade-in">
+            {[
+              { code: "EN" as Language, label: "English" },
+              { code: "FR" as Language, label: "Français" },
+              { code: "PT" as Language, label: "Português" },
+              { code: "ES" as Language, label: "Español" },
+            ].map((l) => (
+              <button
+                key={l.code}
+                onClick={() => selectLanguage(l.code)}
+                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between ${
+                  lang === l.code
+                    ? "bg-brand-600 text-white"
+                    : "text-slate-455 hover:text-white hover:bg-slate-800"
+                }`}
+              >
+                <span>{l.label}</span>
+                {lang === l.code && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Language Toggler */}
         <button
-          onClick={toggleLanguage}
+          onClick={() => setShowLangMenu(!showLangMenu)}
           className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-900/40 hover:bg-slate-900 border border-slate-800/40 transition-all duration-200"
         >
           <span className="flex items-center gap-2">
