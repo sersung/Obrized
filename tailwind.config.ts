@@ -25,6 +25,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Outfit", "Plus Jakarta Sans", "sans-serif"],
       },
     },
   },
