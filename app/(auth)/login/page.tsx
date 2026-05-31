@@ -55,7 +55,7 @@ export default function LoginPage() {
         // Standard Failsafe / Offline Mode card
         <div className="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden w-full">
           <div className="px-8 pt-8 pb-6 border-b border-gray-50 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">BuildrAI Login</h1>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Obrized Login</h1>
             <p className="text-xs text-gray-400 font-semibold mt-1">Platform in Offline / Demo Mode</p>
           </div>
 

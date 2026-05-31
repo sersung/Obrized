@@ -41,7 +41,7 @@ export default function TopNav() {
     "/payments": { href: "/payments/new", label: t("new_invoice") },
   };
 
-  const pageTitle = breadcrumbMap[pathname] ?? "BuildrAI";
+  const pageTitle = breadcrumbMap[pathname] ?? "Obrized";
   const newAction = newActionMap[pathname];
   const { data: session } = useSession();
 

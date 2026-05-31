@@ -4,7 +4,7 @@ import { Toaster } from "sonner";
 import Providers from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: "BuildrAI — Plataforma de IA para Construtores Canadenses",
+  title: "Obrized — Plataforma de IA para Construtores Canadenses",
   description:
     "Orçamentos precisos, análise de contratos, segurança no canteiro e conformidade com Prompt Payment — tudo em um só lugar.",
 };

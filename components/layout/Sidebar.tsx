@@ -86,7 +86,7 @@ export default function Sidebar() {
               <HardHat className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-white font-bold text-lg leading-none tracking-tight block">BuildrAI</span>
+              <span className="text-white font-bold text-lg leading-none tracking-tight block">Obrized</span>
               <p className="text-slate-500 text-xs mt-1 font-medium tracking-wide uppercase">{t("intelligent_construction")}</p>
             </div>
           </Link>

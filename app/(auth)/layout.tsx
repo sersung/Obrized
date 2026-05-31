@@ -39,7 +39,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur shadow-md">
               <HardHat className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold tracking-tight">BuildrAI</span>
+            <span className="text-xl font-bold tracking-tight">Obrized</span>
           </Link>
 
           {/* Hero text */}
@@ -85,7 +85,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <div className="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center shadow-md">
               <HardHat className="w-5 h-5 text-white" />
             </div>
-            <span className="text-lg font-bold text-gray-900 tracking-tight">BuildrAI</span>
+            <span className="text-lg font-bold text-gray-900 tracking-tight">Obrized</span>
           </Link>
         </header>
 

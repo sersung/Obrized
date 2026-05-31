@@ -322,10 +322,10 @@ export default function SchedulingPage() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border border-gray-150">
             <h3 className="font-bold text-gray-900 text-lg mb-2">{t("register_delay")}</h3>
             <p className="text-gray-400 font-medium text-xs mb-5 leading-relaxed">
-              {lang === "EN" ? "Enter the delay period below. BuildrAI will automatically adjust dependent paths using predictive resource allocation." :
-               lang === "FR" ? "Indiquez la durée du retard. BuildrAI ajustera automatiquement les chemins dépendants à l'aide de l'IA." :
-               lang === "PT" ? "Insira o período de atraso abaixo. O BuildrAI ajustará automaticamente os caminhos dependentes usando alocação preditiva de recursos de IA." :
-               "Indique el período de retraso a continuación. BuildrAI ajustará automáticamente las rutas dependientes utilizando la asignación predictiva de recursos de IA."}
+              {lang === "EN" ? "Enter the delay period below. Obrized will automatically adjust dependent paths using predictive resource allocation." :
+               lang === "FR" ? "Indiquez la durée du retard. Obrized ajustera automatiquement les chemins dépendants à l'aide de l'IA." :
+               lang === "PT" ? "Insira o período de atraso abaixo. O Obrized ajustará automaticamente os caminhos dependentes usando alocação preditiva de recursos de IA." :
+               "Indique el período de retraso a continuación. Obrized ajustará automáticamente las rutas dependientes utilizando la asignación predictiva de recursos de IA."}
             </p>
             <div className="mb-4">
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">

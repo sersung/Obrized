@@ -1,4 +1,4 @@
-// Multilingual Translation Dictionary (English, French, Portuguese, and Spanish) for BuildrAI
+// Multilingual Translation Dictionary (English, French, Portuguese, and Spanish) for Obrized
 
 export type Language = "EN" | "FR" | "PT" | "ES";
 
@@ -60,7 +60,7 @@ export const translations = {
     ready_desc: "Access the platform now and see how AI can transform your construction business management.",
     
     // Dashboard Page
-    welcome_title: "Welcome to BuildrAI",
+    welcome_title: "Welcome to Obrized",
     welcome_subtitle: "Your AI platform for Canadian builders. Start by creating an estimate or analyzing a contract.",
     create_first_estimate: "Create first estimate",
     analyze_a_contract: "Analyze a contract",
@@ -274,7 +274,7 @@ export const translations = {
     ready_desc: "Accédez à la plateforme dès maintenant et voyez comment l'IA peut transformer la gestion de votre entreprise de construction.",
     
     // Dashboard Page
-    welcome_title: "Bienvenue sur BuildrAI",
+    welcome_title: "Bienvenue sur Obrized",
     welcome_subtitle: "Votre plateforme d'IA pour les constructeurs canadiens. Commencez par créer une estimation ou analyser un contrat.",
     create_first_estimate: "Créer une première estimation",
     analyze_a_contract: "Analyser un contrat",
@@ -488,7 +488,7 @@ export const translations = {
     ready_desc: "Acesse a plataforma agora e veja como a IA pode transformar a gestão da sua construtora.",
     
     // Dashboard Page
-    welcome_title: "Bem-vindo ao BuildrAI",
+    welcome_title: "Bem-vindo ao Obrized",
     welcome_subtitle: "Sua plataforma de IA para construtores canadenses. Comece criando um orçamento ou analisando um contrato.",
     create_first_estimate: "Criar primeiro orçamento",
     analyze_a_contract: "Analisar um contrato",
@@ -702,7 +702,7 @@ export const translations = {
     ready_desc: "Acceda a la plataforma ahora y vea cómo la IA puede transformar la gestión de su constructora.",
     
     // Dashboard Page
-    welcome_title: "Bienvenido a BuildrAI",
+    welcome_title: "Bienvenido a Obrized",
     welcome_subtitle: "Su plataforma de IA para constructores canadienses. Comience creando una estimación o analizando un contrato.",
     create_first_estimate: "Crear primera estimación",
     analyze_a_contract: "Analizar un contrato",

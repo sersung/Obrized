@@ -104,7 +104,7 @@ export default function LandingPage() {
             <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
               <HardHat className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">BuildrAI</span>
+            <span className="text-xl font-bold text-gray-900">Obrized</span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
             <a href="#features" className="hover:text-gray-900 transition-colors font-medium">
@@ -289,7 +289,7 @@ export default function LandingPage() {
             <div className="w-6 h-6 bg-brand-600 rounded flex items-center justify-center">
               <HardHat className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-gray-700">BuildrAI</span>
+            <span className="font-bold text-gray-700">Obrized</span>
           </div>
           <p>{t("grants_footer")}</p>
         </div>
