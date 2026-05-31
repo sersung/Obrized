@@ -137,7 +137,7 @@ export default function Sidebar() {
                 className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between ${
                   lang === l.code
                     ? "bg-brand-600 text-white"
-                    : "text-slate-455 hover:text-white hover:bg-slate-800"
+                    : "text-slate-300 hover:text-white hover:bg-slate-800"
                 }`}
               >
                 <span>{l.label}</span>
