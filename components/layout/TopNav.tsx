@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Bell, Search, Plus, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession, useLogout } from "@/lib/auth-client";
 import { useTranslations, Language } from "@/lib/translations";
 
 export default function TopNav() {
@@ -44,6 +44,7 @@ export default function TopNav() {
   const pageTitle = breadcrumbMap[pathname] ?? "Obrized";
   const newAction = newActionMap[pathname];
   const { data: session } = useSession();
+  const logout = useLogout("/login");
 
   const getLocale = (l: Language) => {
     switch (l) {
@@ -116,7 +117,7 @@ export default function TopNav() {
             </p>
           </div>
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={logout}
             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
             title={t("sign_out")}
           >
