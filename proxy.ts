@@ -10,14 +10,18 @@ const isProtectedRoute = createRouteMatcher([
   "/settings(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    // Only enforce protection if Clerk keys are configured
-    if (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-      await auth.protect();
-    }
-  }
-});
+const isClerkConfigured = !!process.env.CLERK_SECRET_KEY;
+
+export default isClerkConfigured
+  ? clerkMiddleware(async (auth, req) => {
+      if (isProtectedRoute(req)) {
+        await auth.protect();
+      }
+    })
+  : async (req: any, ev: any) => {
+      // Bypass/no-op middleware when Clerk keys are missing
+      return;
+    };
 
 export const config = {
   matcher: [
