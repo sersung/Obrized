@@ -39,7 +39,12 @@ class LocalQueryBuilder {
             password_hash: "$2b$10$DqK8R1MGY04Hz.G66yCM9.ztHJOO7xeFxmPSwSNXas8TCVwmRbFAq",
             provider: "credentials",
             avatar_url: null,
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
+            plan_name: "Starter",
+            billing_cycle: "monthly",
+            subscription_status: "active",
+            stripe_customer_id: "cus_mock123",
+            stripe_subscription_id: "sub_mock123"
           }
         ];
       }
@@ -201,6 +206,11 @@ export type Profile = {
   provider: string;
   avatar_url: string | null;
   created_at: string;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
+  plan_name?: "Free" | "Starter" | "Pro";
+  billing_cycle?: "monthly" | "annually";
+  subscription_status?: "active" | "canceled" | "past_due" | null;
 };
 
 export type Estimate = {

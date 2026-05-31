@@ -13,6 +13,8 @@ import {
   HelpCircle,
   CreditCard,
   Trash2,
+  Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { useTranslations, Language } from "@/lib/translations";
 
@@ -31,6 +33,7 @@ export default function SettingsPage() {
   // Plan management states
   const [currentPlan, setCurrentPlan] = useState<"Free" | "Starter" | "Pro">("Starter");
   const [currentBilling, setCurrentBilling] = useState<"monthly" | "annually">("monthly");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const savedLang = localStorage.getItem("buildr_lang") as Language;
@@ -61,6 +64,59 @@ export default function SettingsPage() {
     if (savedEmail) setEmail(savedEmail);
   }, []);
 
+  // Handle URL query parameters for Stripe checkout/portal redirects
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("stripe_mock_success") === "true") {
+      const plan = params.get("plan") as "Free" | "Starter" | "Pro";
+      const billing = params.get("billing") as "monthly" | "annually";
+      
+      setCurrentPlan(plan);
+      setCurrentBilling(billing);
+      localStorage.setItem("obrized_plan", plan);
+      localStorage.setItem("obrized_billing", billing);
+
+      toast.success(
+        lang === "PT" 
+          ? `Sucesso! Seu plano de testes foi atualizado para ${plan} (${billing === "annually" ? "Anual" : "Mensal"}).`
+          : `Success! Your sandbox plan was upgraded to ${plan} (${billing === "annually" ? "Annually" : "Monthly"}).`
+      );
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (params.get("stripe_success") === "true") {
+      const plan = params.get("plan") as "Free" | "Starter" | "Pro";
+      const billing = params.get("billing") as "monthly" | "annually";
+      
+      if (plan) {
+        setCurrentPlan(plan);
+        localStorage.setItem("obrized_plan", plan);
+      }
+      if (billing) {
+        setCurrentBilling(billing);
+        localStorage.setItem("obrized_billing", billing);
+      }
+
+      toast.success(
+        lang === "PT" ? "Assinatura Stripe ativada com sucesso!" : "Stripe subscription activated successfully!"
+      );
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (params.get("stripe_cancel") === "true") {
+      toast.error(
+        lang === "PT" ? "Pagamento Stripe cancelado." : "Stripe checkout was cancelled."
+      );
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (params.get("stripe_mock_portal") === "true") {
+      setCurrentPlan("Free");
+      localStorage.setItem("obrized_plan", "Free");
+      
+      toast.error(
+        lang === "PT" 
+          ? "Mock Billing Portal: Assinatura cancelada com sucesso!"
+          : "Mock Billing Portal: Subscription successfully cancelled!"
+      );
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [lang]);
+
   const { t } = useTranslations(lang);
 
   const handleSave = () => {
@@ -80,12 +136,84 @@ export default function SettingsPage() {
       "¡Configuraciones guardadas con éxito!";
     toast.success(successMsg);
     
-    // Refresh to apply language change globally
     window.location.reload();
   };
 
+  const handlePlanSelect = async (selectedPlan: "Free" | "Starter" | "Pro") => {
+    if (selectedPlan === currentPlan) return;
+    
+    setLoading(true);
+    try {
+      if (selectedPlan === "Free") {
+        if (currentPlan !== "Free") {
+          // Subscribed users must cancel via Stripe Portal
+          await handleOpenPortal();
+          return;
+        }
+        setCurrentPlan("Free");
+        localStorage.setItem("obrized_plan", "Free");
+        toast.success(lang === "PT" ? "Alterado para o Plano Gratuito!" : "Switched to Free Plan!");
+        setLoading(false);
+        return;
+      }
+
+      // Upgrade/Checkout Flow
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: selectedPlan, billing: currentBilling })
+      });
+      
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url; // Redirect to Stripe Checkout or sandbox mock success page
+      } else {
+        toast.error(data.error || "Failed to initiate Stripe Checkout");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("An error occurred during payment checkout setup.");
+      setLoading(false);
+    }
+  };
+
+  const handleOpenPortal = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/stripe/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url; // Redirect to Stripe hosted billing portal
+      } else {
+        toast.error(data.error || "Failed to open subscription settings");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("An error occurred while opening subscription settings.");
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in relative">
+      {/* Loading Overlay spinner */}
+      {loading && (
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 flex flex-col items-center gap-3 shadow-2xl">
+            <Loader2 className="w-10 h-10 text-brand-600 animate-spin" />
+            <p className="text-xs font-bold text-gray-800">
+              {lang === "PT" ? "Redirecionando para o Stripe..." : "Redirecting to Stripe..."}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div>
         <h2 className="text-xl font-bold text-gray-900 tracking-tight">{t("settings")}</h2>
         <p className="text-xs text-gray-400 font-semibold mt-1">
@@ -316,7 +444,7 @@ export default function SettingsPage() {
                             "Créditos fiscales por Investigación Científica y Desarrollo Experimental."
                     }
                   ].map((grant, idx) => (
-                    <div key={idx} className="flex gap-3 items-start text-xs font-semibold text-slate-300">
+                    <div key={idx} className="flex gap-3 items-start text-xs font-semibold text-slate-350">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="font-extrabold text-slate-100">{grant.title}</p>
@@ -406,7 +534,7 @@ export default function SettingsPage() {
                          currentPlan === "Starter" ? "Starter Plan" : "Pro Plan"}
                       </h4>
                       <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                        {lang === "EN" ? "Active" : lang === "FR" ? "Actif" : lang === "PT" ? "Ativo" : "Activo"}
+                        {lang === "EN" ? "Active" : lang === "FR" ? "Actif" : lang === "PT" ? "Ativo" : "Ativo"}
                       </span>
                     </div>
                   </div>
@@ -478,19 +606,11 @@ export default function SettingsPage() {
                     <button
                       key={p.id}
                       type="button"
-                      onClick={() => {
-                        setCurrentPlan(p.id as any);
-                        const changeMsg = 
-                          lang === "EN" ? `Plan changed to ${p.id}!` : 
-                          lang === "FR" ? `Plan changé pour ${p.id} !` : 
-                          lang === "PT" ? `Plano alterado para ${p.id}!` : 
-                          `¡Plan cambiado a ${p.id}!`;
-                        toast.success(changeMsg);
-                      }}
+                      onClick={() => handlePlanSelect(p.id as any)}
                       className={`p-4 rounded-xl border text-left transition-all space-y-2 flex flex-col justify-between h-36 ${
                         currentPlan === p.id
-                          ? "border-brand-500 bg-brand-50/15 shadow-sm ring-2 ring-brand-500/20"
-                          : "border-gray-200 hover:bg-gray-50"
+                          ? "border-brand-500 bg-brand-50/15 shadow-sm ring-2 ring-brand-500/20 animate-pulse"
+                          : "border-gray-200 hover:bg-gray-50 hover:border-brand-350"
                       }`}
                     >
                       <div>
@@ -558,15 +678,7 @@ export default function SettingsPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    setCurrentPlan("Free");
-                    const cancelMsg = 
-                      lang === "EN" ? "Subscription cancelled. Your account has been demoted to the Free Plan." : 
-                      lang === "FR" ? "Abonnement annulé. Votre compte a été rétrogradé au forfait gratuit." : 
-                      lang === "PT" ? "Assinatura cancelada com sucesso! Sua conta foi revertida para o Plano Gratuito." : 
-                      "Suscripción cancelada con éxito. Su cuenta ha sido revertida al Plan Gratuito.";
-                    toast.error(cancelMsg);
-                  }}
+                  onClick={handleOpenPortal}
                   className="bg-rose-600 text-white hover:bg-rose-700 px-6 py-2.5 rounded-xl text-xs font-black transition-all shadow-sm shadow-rose-600/10"
                 >
                   {lang === "EN" ? "Cancel Subscription" : lang === "FR" ? "Annuler l'Abonnement" : lang === "PT" ? "Cancelar Assinatura" : "Cancelar Suscripción"}
@@ -576,17 +688,19 @@ export default function SettingsPage() {
           )}
 
           {/* Save Button */}
-          <div className="flex justify-end">
-            <button
-              onClick={handleSave}
-              className="bg-brand-600 text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/10 transition-all duration-200"
-            >
-              {lang === "EN" ? "Save Parameters" : 
-               lang === "FR" ? "Sauvegarder les Paramètres" : 
-               lang === "PT" ? "Salvar Parâmetros" : 
-               "Guardar Parámetros"}
-            </button>
-          </div>
+          {activeTab !== "plan" && (
+            <div className="flex justify-end">
+              <button
+                onClick={handleSave}
+                className="bg-brand-600 text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/10 transition-all duration-200"
+              >
+                {lang === "EN" ? "Save Parameters" : 
+                 lang === "FR" ? "Sauvegarder les Paramètres" : 
+                 lang === "PT" ? "Salvar Parâmetros" : 
+                 "Guardar Parámetros"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
