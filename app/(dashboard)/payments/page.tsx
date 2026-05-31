@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { Plus, Clock, CheckCircle2, AlertTriangle, XCircle, DollarSign, Loader2 } from "lucide-react";
 import { differenceInDays, parseISO } from "date-fns";
 import { useTranslations, Language } from "@/lib/translations";

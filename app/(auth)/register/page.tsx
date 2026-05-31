@@ -1,243 +1,83 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { SignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Loader2, UserPlus, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
-
-function GoogleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
-      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-    </svg>
-  );
-}
-
-function GitHubIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-800" fill="currentColor" aria-hidden="true">
-      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-    </svg>
-  );
-}
+import { UserPlus } from "lucide-react";
+import { useState } from "react";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", company: "", email: "", password: "", confirm: "" });
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<string | null>(null);
-  const [error, setError] = useState("");
 
-  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((f) => ({ ...f, [field]: e.target.value }));
-
-  const handleOAuth = async (provider: "google" | "github") => {
-    setOauthLoading(provider);
-    await signIn(provider, { callbackUrl: "/dashboard" });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (form.password !== form.confirm) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-
+  const handleDemoBypass = () => {
     setLoading(true);
-
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: form.name, company: form.company, email: form.email, password: form.password }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || "Failed to create account.");
-      setLoading(false);
-      return;
-    }
-
-    const signInRes = await signIn("credentials", {
-      email: form.email,
-      password: form.password,
-      redirect: false,
-    });
-
-    setLoading(false);
-    if (signInRes?.ok) {
+    setTimeout(() => {
       router.push("/dashboard");
-      router.refresh();
-    } else {
-      router.push("/login");
-    }
+    }, 500);
   };
+
+  const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
   return (
-    <div className="w-full max-w-md animate-fade-in">
-      <div className="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden">
-        {/* Header */}
-        <div className="px-8 pt-8 pb-6 border-b border-gray-50">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Create Account</h1>
-          <p className="text-xs text-gray-400 font-semibold mt-1">Free workspace for Canadian contractors</p>
-        </div>
+    <div className="w-full max-w-md animate-fade-in flex flex-col items-center justify-center space-y-4">
+      {isClerkConfigured ? (
+        <div className="w-full flex flex-col items-center space-y-4">
+          <SignUp
+            routing="hash"
+            signInUrl="/login"
+            forceRedirectUrl="/dashboard"
+            appearance={{
+              elements: {
+                rootBox: "w-full",
+                cardBox: "shadow-sm border border-gray-150 rounded-2xl overflow-hidden bg-white",
+              },
+            }}
+          />
 
-        <div className="px-8 py-6 space-y-4">
-          {/* Benefits */}
-          <div className="grid grid-cols-3 gap-2">
-            {["5 AI Modules", "CCDC Standards", "Prompt Payment"].map((b) => (
-              <div key={b} className="flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-lg px-2 py-1.5 justify-center">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" />
-                {b}
-              </div>
-            ))}
-          </div>
-
-          {/* OAuth buttons */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="w-full bg-brand-50 border border-brand-100 rounded-2xl px-4 py-3.5 flex items-center justify-between shadow-inner">
+            <div>
+              <p className="text-xs font-bold text-brand-850">Demo Bypass Mode</p>
+              <p className="text-[10px] text-brand-600 font-semibold mt-0.5">Skip registration and try the platform instantly</p>
+            </div>
             <button
-              onClick={() => handleOAuth("google")}
-              disabled={!!oauthLoading || loading}
-              className="flex items-center justify-center gap-2.5 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleDemoBypass}
+              disabled={loading}
+              className="text-[10px] font-bold uppercase tracking-wide text-brand-700 bg-white border border-brand-200 px-3.5 py-1.75 rounded-lg hover:bg-brand-100 transition-colors shadow-sm flex items-center gap-1.5"
             >
-              {oauthLoading === "google" ? <Loader2 className="w-4 h-4 animate-spin" /> : <GoogleIcon />}
-              Google
-            </button>
-            <button
-              onClick={() => handleOAuth("github")}
-              disabled={!!oauthLoading || loading}
-              className="flex items-center justify-center gap-2.5 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {oauthLoading === "github" ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitHubIcon />}
-              GitHub
+              <UserPlus className="w-3.5 h-3.5" />
+              {loading ? "Entering..." : "Demo Access"}
             </button>
           </div>
-
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-100" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-[10px] text-gray-450 font-bold uppercase tracking-wider">
-                or sign up with email
-              </span>
-            </div>
+        </div>
+      ) : (
+        // Standard Failsafe / Offline Mode card
+        <div className="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden w-full">
+          <div className="px-8 pt-8 pb-6 border-b border-gray-50 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Create Account</h1>
+            <p className="text-xs text-gray-400 font-semibold mt-1">Platform in Offline / Demo Mode</p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">First Name *</label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={set("name")}
-                  placeholder="John"
-                  required
-                  autoComplete="name"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all bg-white"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Company Name</label>
-                <input
-                  type="text"
-                  value={form.company}
-                  onChange={set("company")}
-                  placeholder="JC Construction Ltd."
-                  autoComplete="organization"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all bg-white"
-                />
+          <div className="px-8 py-8 space-y-6">
+            <div className="bg-brand-50 border border-brand-100 rounded-2xl p-5 shadow-inner space-y-3">
+              <p className="text-xs font-bold text-brand-850">Demo Credentials Available</p>
+              <p className="text-[10px] text-brand-600 font-semibold">Registration is disabled in offline mode. Please use the pre-configured demo account to explore all features instantly.</p>
+              <div className="text-[10px] bg-white border border-brand-200 rounded-xl p-3 font-semibold space-y-1 text-gray-700">
+                <p>E-mail: <span className="font-bold text-brand-700">john.carter@jcconstruction.ca</span></p>
+                <p>Password: <span className="font-bold text-brand-700">password123</span></p>
               </div>
             </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Email Address *</label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={set("email")}
-                placeholder="john.carter@jcconstruction.ca"
-                required
-                autoComplete="email"
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all bg-white"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Password *</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={form.password}
-                  onChange={set("password")}
-                  placeholder="At least 6 characters"
-                  required
-                  autoComplete="new-password"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all bg-white"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-450 hover:text-gray-650 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Confirm Password *</label>
-              <input
-                type="password"
-                value={form.confirm}
-                onChange={set("confirm")}
-                placeholder="••••••••"
-                required
-                autoComplete="new-password"
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all bg-white"
-              />
-            </div>
-
-            {error && (
-              <div className="flex items-center gap-2 text-rose-700 bg-rose-50 border border-rose-100 rounded-xl p-3 text-sm font-semibold">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                {error}
-              </div>
-            )}
 
             <button
-              type="submit"
-              disabled={loading || !!oauthLoading}
-              className="w-full bg-brand-600 text-white py-2.5 rounded-xl font-bold hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-brand-600/10 flex items-center justify-center gap-2"
+              onClick={handleDemoBypass}
+              disabled={loading}
+              className="w-full bg-brand-600 text-white py-3 rounded-xl font-bold hover:bg-brand-700 transition-all duration-200 shadow-md shadow-brand-600/10 flex items-center justify-center gap-2"
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-              {loading ? "Creating Account..." : "Create Free Account"}
+              <UserPlus className="w-4 h-4" />
+              {loading ? "Entering Dashboard..." : "Enter Dashboard as Demo User"}
             </button>
-          </form>
+          </div>
         </div>
-
-        {/* Footer */}
-        <div className="px-8 pb-7 text-center text-sm text-gray-450 font-medium">
-          Already have an account?{" "}
-          <Link href="/login" className="text-brand-600 font-bold hover:text-brand-700 transition-colors">
-            Sign In
-          </Link>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
