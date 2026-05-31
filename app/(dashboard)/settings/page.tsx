@@ -34,7 +34,12 @@ export default function SettingsPage() {
 
   const handleSave = () => {
     localStorage.setItem("buildr_lang", lang);
-    toast.success(lang === "EN" ? "Settings saved successfully!" : "Paramètres enregistrés avec succès !");
+    const successMsg = 
+      lang === "EN" ? "Settings saved successfully!" : 
+      lang === "FR" ? "Paramètres enregistrés avec succès !" : 
+      lang === "PT" ? "Configurações salvas com sucesso!" : 
+      "¡Configuraciones guardadas con éxito!";
+    toast.success(successMsg);
     window.location.reload();
   };
 
@@ -43,7 +48,10 @@ export default function SettingsPage() {
       <div>
         <h2 className="text-xl font-bold text-gray-900 tracking-tight">{t("settings")}</h2>
         <p className="text-xs text-gray-400 font-semibold mt-1">
-          {lang === "EN" ? "Manage your company profile, default tax rates, regional parameters, and bilingual translations." : "Gérez le profil de votre entreprise, les taxes par défaut, les paramètres régionaux et la traduction bilíngue."}
+          {lang === "EN" ? "Manage your company profile, default tax rates, regional parameters, and multilingual translations." : 
+           lang === "FR" ? "Gérez le profil de votre entreprise, les taxes par défaut, les paramètres régionaux et la traduction multilingue." : 
+           lang === "PT" ? "Gerencie o perfil da sua empresa, taxas de impostos padrão, parâmetros regionais e traduções multilíngues." : 
+           "Gestione el perfil de su empresa, las tasas de impuestos predeterminadas, los parámetros regionales y las traducciones multilingües."}
         </p>
       </div>
 
@@ -52,15 +60,30 @@ export default function SettingsPage() {
         <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm h-fit space-y-1">
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold bg-brand-50 text-brand-700">
             <Building className="w-4 h-4" />
-            <span>{lang === "EN" ? "Company Profile" : "Profil d'Entreprise"}</span>
+            <span>
+              {lang === "EN" ? "Company Profile" : 
+               lang === "FR" ? "Profil d'Entreprise" : 
+               lang === "PT" ? "Perfil da Empresa" : 
+               "Perfil de la Empresa"}
+            </span>
           </button>
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
             <DollarSign className="w-4 h-4 text-gray-400" />
-            <span>{lang === "EN" ? "Rates & Taxes" : "Taux & Taxes"}</span>
+            <span>
+              {lang === "EN" ? "Rates & Taxes" : 
+               lang === "FR" ? "Taux & Taxes" : 
+               lang === "PT" ? "Taxas & Impostos" : 
+               "Tasas e Impuestos"}
+            </span>
           </button>
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
             <Globe className="w-4 h-4 text-gray-400" />
-            <span>{lang === "EN" ? "Language Toggles" : "Langue"}</span>
+            <span>
+              {lang === "EN" ? "Language Toggles" : 
+               lang === "FR" ? "Langue" : 
+               lang === "PT" ? "Idiomas" : 
+               "Idiomas"}
+            </span>
           </button>
         </div>
 
@@ -70,12 +93,20 @@ export default function SettingsPage() {
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
             <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2 border-b border-gray-50 pb-3">
               <Building className="w-4 h-4 text-brand-600" />
-              <span>{lang === "EN" ? "Company Credentials" : "Coordonnées de l'Entreprise"}</span>
+              <span>
+                {lang === "EN" ? "Company Credentials" : 
+                 lang === "FR" ? "Coordonnées de l'Entreprise" : 
+                 lang === "PT" ? "Credenciais da Empresa" : 
+                 "Credenciales de la Empresa"}
+              </span>
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  {lang === "EN" ? "Legal Company Name" : "Nom Légal de l'Entreprise"}
+                  {lang === "EN" ? "Legal Company Name" : 
+                   lang === "FR" ? "Nom Légal de l'Entreprise" : 
+                   lang === "PT" ? "Nome Legal da Empresa" : 
+                   "Nombre Legal de la Empresa"}
                 </label>
                 <input
                   type="text"
@@ -86,7 +117,10 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  {lang === "EN" ? "Primary Contact Name" : "Nom du Contact Principal"}
+                  {lang === "EN" ? "Primary Contact Name" : 
+                   lang === "FR" ? "Nom du Contact Principal" : 
+                   lang === "PT" ? "Nome do Contato Principal" : 
+                   "Nombre del Contacto Principal"}
                 </label>
                 <input
                   type="text"
@@ -97,7 +131,10 @@ export default function SettingsPage() {
               </div>
               <div className="md:col-span-2">
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  {lang === "EN" ? "Corporate Email Address" : "Adresse Courriel de l'Entreprise"}
+                  {lang === "EN" ? "Corporate Email Address" : 
+                   lang === "FR" ? "Adresse Courriel de l'Entreprise" : 
+                   lang === "PT" ? "Endereço de E-mail Corporativo" : 
+                   "Dirección de Correo Electrónico Corporativo"}
                 </label>
                 <input
                   type="email"
@@ -113,12 +150,20 @@ export default function SettingsPage() {
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
             <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2 border-b border-gray-50 pb-3">
               <DollarSign className="w-4 h-4 text-brand-600" />
-              <span>{lang === "EN" ? "Wages, Estimates & Tax Defaults" : "Tarifs, Estimations & Taxes par Défaut"}</span>
+              <span>
+                {lang === "EN" ? "Wages, Estimates & Tax Defaults" : 
+                 lang === "FR" ? "Tarifs, Estimations & Taxes par Défaut" : 
+                 lang === "PT" ? "Salários, Orçamentos & Impostos Padrão" : 
+                 "Salarios, Estimaciones e Impuestos Predeterminados"}
+              </span>
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  {lang === "EN" ? "Default Labour Rate ($/hr)" : "Tarif Horaire par Défaut ($/h)"}
+                  {lang === "EN" ? "Default Labour Rate ($/hr)" : 
+                   lang === "FR" ? "Tarif Horaire par Défaut ($/h)" : 
+                   lang === "PT" ? "Taxa de Mão de Obra Padrão ($/h)" : 
+                   "Tarifa de Mano de Obra Predeterminada ($/h)"}
                 </label>
                 <input
                   type="number"
@@ -129,7 +174,10 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  {lang === "EN" ? "Default Province/Region" : "Province/Région par Défaut"}
+                  {lang === "EN" ? "Default Province/Region" : 
+                   lang === "FR" ? "Province/Région par Défaut" : 
+                   lang === "PT" ? "Província/Região Padrão" : 
+                   "Provincia/Región Predeterminada"}
                 </label>
                 <select
                   value={defaultProvince}
@@ -148,32 +196,57 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Bilingual settings */}
+          {/* Multilingual settings */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
             <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2 border-b border-gray-50 pb-3">
               <Globe className="w-4 h-4 text-brand-600" />
-              <span>{lang === "EN" ? "Preferred Interface Language" : "Langue de l'Interface"}</span>
+              <span>
+                {lang === "EN" ? "Preferred Interface Language" : 
+                 lang === "FR" ? "Langue de l'Interface" : 
+                 lang === "PT" ? "Idioma de Interface Preferido" : 
+                 "Idioma de Interfaz Preferido"}
+              </span>
             </h3>
-            <div className="flex gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <button
                 onClick={() => setLang("EN")}
-                className={`flex-1 p-4 rounded-xl border text-center transition-all ${
+                className={`p-4 rounded-xl border text-center transition-all ${
                   lang === "EN"
                     ? "border-brand-500 bg-brand-50/20 text-brand-700 font-bold"
                     : "border-gray-200 text-gray-500 font-semibold hover:bg-gray-50"
                 }`}
               >
-                English (Canada)
+                English
               </button>
               <button
                 onClick={() => setLang("FR")}
-                className={`flex-1 p-4 rounded-xl border text-center transition-all ${
+                className={`p-4 rounded-xl border text-center transition-all ${
                   lang === "FR"
                     ? "border-brand-500 bg-brand-50/20 text-brand-700 font-bold"
                     : "border-gray-200 text-gray-500 font-semibold hover:bg-gray-50"
                 }`}
               >
-                Français (Canada)
+                Français
+              </button>
+              <button
+                onClick={() => setLang("PT")}
+                className={`p-4 rounded-xl border text-center transition-all ${
+                  lang === "PT"
+                    ? "border-brand-500 bg-brand-50/20 text-brand-700 font-bold"
+                    : "border-gray-200 text-gray-500 font-semibold hover:bg-gray-50"
+                }`}
+              >
+                Português
+              </button>
+              <button
+                onClick={() => setLang("ES")}
+                className={`p-4 rounded-xl border text-center transition-all ${
+                  lang === "ES"
+                    ? "border-brand-500 bg-brand-50/20 text-brand-700 font-bold"
+                    : "border-gray-200 text-gray-500 font-semibold hover:bg-gray-50"
+                }`}
+              >
+                Español
               </button>
             </div>
           </div>
@@ -182,13 +255,36 @@ export default function SettingsPage() {
           <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-md border border-slate-800 space-y-4">
             <h3 className="font-bold text-white text-sm flex items-center gap-2 border-b border-slate-850 pb-3">
               <Briefcase className="w-4 h-4 text-brand-400" />
-              <span>{lang === "EN" ? "Canadian Tech Grants Eligibility" : "Éligibilité aux Subventions Canadiennes"}</span>
+              <span>
+                {lang === "EN" ? "Canadian Tech Grants Eligibility" : 
+                 lang === "FR" ? "Éligibilité aux Subventions Canadiennes" : 
+                 lang === "PT" ? "Elegibilidade para Subsídios de Tecnologia Canadenses" : 
+                 "Elegibilidad para Subvenciones de Tecnología Canadienses"}
+              </span>
             </h3>
             <div className="space-y-3">
               {[
-                { title: "CDAP (Canada Digital Adoption Program)", desc: "Up to $15,000 in grants + 0% interest BDC loan." },
-                { title: "RAII (Regional AI Integration)", desc: "Up to 50% matching funds for AI infrastructure adoption." },
-                { title: "SR&ED Tax Credit", desc: "Scientific Research & Experimental Development credits." }
+                { 
+                  title: "CDAP (Canada Digital Adoption Program)", 
+                  desc: lang === "EN" ? "Up to $15,000 in grants + 0% interest BDC loan." : 
+                        lang === "FR" ? "Jusqu'à 15 000 $ en subventions + prêt BDC à taux d'intérêt de 0 %." : 
+                        lang === "PT" ? "Até $15.000 em subsídios + empréstimo BDC com juros de 0%." : 
+                        "Hasta $15,000 en subvenciones + préstamo BDC con interés del 0%."
+                },
+                { 
+                  title: "RAII (Regional AI Integration)", 
+                  desc: lang === "EN" ? "Up to 50% matching funds for AI infrastructure adoption." : 
+                        lang === "FR" ? "Jusqu'à 50 % de fonds de contrepartie pour l'adoption d'infrastructures d'IA." : 
+                        lang === "PT" ? "Até 50% de fundos de contrapartida para adoção de infraestrutura de IA." : 
+                        "Hasta 50% de fondos de contrapartida para la adopción de infraestructura de IA."
+                },
+                { 
+                  title: "SR&ED Tax Credit", 
+                  desc: lang === "EN" ? "Scientific Research & Experimental Development credits." : 
+                        lang === "FR" ? "Crédits d'impôt pour la recherche scientifique et le développement expérimental." : 
+                        lang === "PT" ? "Créditos para Pesquisa Científica e Desenvolvimento Experimental." : 
+                        "Créditos fiscales por Investigación Científica y Desarrollo Experimental."
+                }
               ].map((grant, idx) => (
                 <div key={idx} className="flex gap-3 items-start text-xs font-semibold text-slate-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
@@ -207,7 +303,10 @@ export default function SettingsPage() {
               onClick={handleSave}
               className="bg-brand-600 text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/10 transition-all duration-200"
             >
-              {lang === "EN" ? "Save Parameters" : "Sauvegarder les Paramètres"}
+              {lang === "EN" ? "Save Parameters" : 
+               lang === "FR" ? "Sauvegarder les Paramètres" : 
+               lang === "PT" ? "Salvar Parâmetros" : 
+               "Guardar Parámetros"}
             </button>
           </div>
         </div>

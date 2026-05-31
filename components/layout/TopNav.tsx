@@ -45,7 +45,17 @@ export default function TopNav() {
   const newAction = newActionMap[pathname];
   const { data: session } = useSession();
 
-  const formattedDate = new Date().toLocaleDateString(lang === "EN" ? "en-CA" : "fr-CA", {
+  const getLocale = (l: Language) => {
+    switch (l) {
+      case "EN": return "en-CA";
+      case "FR": return "fr-CA";
+      case "PT": return "pt-BR";
+      case "ES": return "es-ES";
+      default: return "en-CA";
+    }
+  };
+
+  const formattedDate = new Date().toLocaleDateString(getLocale(lang), {
     weekday: "long",
     year: "numeric",
     month: "long",

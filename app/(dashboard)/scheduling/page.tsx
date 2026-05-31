@@ -28,28 +28,113 @@ type Task = {
   workers: number;
 };
 
-// Bilingual translations for task names and phases
-const TASK_NAME_TRANSLATIONS: Record<string, { EN: string; FR: string }> = {
-  "Projeto Executivo e Aprovações": { EN: "Executive Design & Permits", FR: "Conception Exécutive & Permis" },
-  "Demolição e Terraplanagem": { EN: "Demolition & Excavation", FR: "Démolition & Excavation" },
-  "Fundação — Estacas e Radier": { EN: "Foundation - Piling & Slab", FR: "Fondation - Pieux & Dalle" },
-  "Estrutura de Concreto — T.S.S.": { EN: "Concrete Structure - Superstructure", FR: "Structure de Béton - Superstructure" },
-  "Alvenaria Externa": { EN: "Exterior Brickwork / Cladding", FR: "Maçonnerie Extérieure / Bardage" },
-  "Instalações Elétricas": { EN: "MEP Electrical Rough-ins", FR: "Électricité MEP" },
-  "Instalações Hidrossanitárias": { EN: "MEP Plumbing Rough-ins", FR: "Plomberie MEP" },
-  "Revestimentos Internos": { EN: "Drywall & Interior Finishes", FR: "Finitions Intérieures" },
-  "Fachada e Paisagismo": { EN: "Facade & Landscaping", FR: "Façade & Paysagement" },
-  "Vistoria Final e Habite-se": { EN: "Final Inspection & Occupancy", FR: "Inspection Finale & Occupation" },
+// Multilingual translations for task names and phases
+const TASK_NAME_TRANSLATIONS: Record<string, Record<Language, string>> = {
+  "Projeto Executivo e Aprovações": { 
+    EN: "Executive Design & Permits", 
+    FR: "Conception Exécutive & Permis", 
+    PT: "Projeto Executivo e Aprovações", 
+    ES: "Diseño Ejecutivo y Permisos" 
+  },
+  "Demolição e Terraplanagem": { 
+    EN: "Demolition & Excavation", 
+    FR: "Démolition & Excavation", 
+    PT: "Demolição e Terraplanagem", 
+    ES: "Demolición y Excavación" 
+  },
+  "Fundação — Estacas e Radier": { 
+    EN: "Foundation - Piling & Slab", 
+    FR: "Fondation - Pieux & Dalle", 
+    PT: "Fundação — Estacas e Radier", 
+    ES: "Cimentación - Pilotaje y Losa" 
+  },
+  "Estrutura de Concreto — T.S.S.": { 
+    EN: "Concrete Structure - Superstructure", 
+    FR: "Structure de Béton - Superstructure", 
+    PT: "Estrutura de Concreto — Superestrutura", 
+    ES: "Estructura de Hormigón - Superestructura" 
+  },
+  "Alvenaria Externa": { 
+    EN: "Exterior Brickwork / Cladding", 
+    FR: "Maçonnerie Extérieure / Bardage", 
+    PT: "Alvenaria Externa", 
+    ES: "Albañilería Exterior / Revestimiento" 
+  },
+  "Instalações Elétricas": { 
+    EN: "MEP Electrical Rough-ins", 
+    FR: "Électricité MEP", 
+    PT: "Instalações Elétricas", 
+    ES: "Instalaciones Eléctricas MEP" 
+  },
+  "Instalações Hidrossanitárias": { 
+    EN: "MEP Plumbing Rough-ins", 
+    FR: "Plomberie MEP", 
+    PT: "Instalações Hidrossanitárias", 
+    ES: "Instalaciones Hidrosanitarias MEP" 
+  },
+  "Revestimentos Internos": { 
+    EN: "Drywall & Interior Finishes", 
+    FR: "Finitions Intérieures", 
+    PT: "Revestimentos Internos", 
+    ES: "Revestimientos Internos y Acabados" 
+  },
+  "Fachada e Paisagismo": { 
+    EN: "Facade & Landscaping", 
+    FR: "Façade & Paysagement", 
+    PT: "Fachada e Paisagismo", 
+    ES: "Fachada y Paisajismo" 
+  },
+  "Vistoria Final e Habite-se": { 
+    EN: "Final Inspection & Occupancy", 
+    FR: "Inspection Finale & Occupation", 
+    PT: "Vistoria Final e Habite-se", 
+    ES: "Inspección Final y Ocupación" 
+  },
 };
 
-const PHASE_TRANSLATIONS: Record<string, { EN: string; FR: string }> = {
-  "Pré-construção": { EN: "Pre-construction", FR: "Pré-construction" },
-  "Fundação": { EN: "Foundation", FR: "Fondation" },
-  "Estrutural": { EN: "Structural", FR: "Structure" },
-  "Vedação": { EN: "Cladding", FR: "Enveloppe" },
-  "Instalações": { EN: "MEP Services", FR: "Services MEP" },
-  "Acabamento": { EN: "Finishes", FR: "Finitions" },
-  "Encerramento": { EN: "Closeout", FR: "Clôture" },
+const PHASE_TRANSLATIONS: Record<string, Record<Language, string>> = {
+  "Pré-construção": { 
+    EN: "Pre-construction", 
+    FR: "Pré-construction", 
+    PT: "Pré-construção", 
+    ES: "Preconstrucción" 
+  },
+  "Fundação": { 
+    EN: "Foundation", 
+    FR: "Fondation", 
+    PT: "Fundação", 
+    ES: "Cimentación" 
+  },
+  "Estrutural": { 
+    EN: "Structural", 
+    FR: "Structure", 
+    PT: "Estrutural", 
+    ES: "Estructural" 
+  },
+  "Vedação": { 
+    EN: "Cladding", 
+    FR: "Enveloppe", 
+    PT: "Vedação", 
+    ES: "Revestimiento" 
+  },
+  "Instalações": { 
+    EN: "MEP Services", 
+    FR: "Services MEP", 
+    PT: "Instalações", 
+    ES: "Instalaciones" 
+  },
+  "Acabamento": { 
+    EN: "Finishes", 
+    FR: "Finitions", 
+    PT: "Acabamento", 
+    ES: "Acabados" 
+  },
+  "Encerramento": { 
+    EN: "Closeout", 
+    FR: "Clôture", 
+    PT: "Encerramento", 
+    ES: "Cierre" 
+  },
 };
 
 const PROJECT_TASKS: Task[] = [
@@ -88,11 +173,46 @@ export default function SchedulingPage() {
   const { t } = useTranslations(lang);
 
   const statusConfig: Record<TaskStatus, { label: string; color: string; bg: string }> = {
-    completed: { label: lang === "EN" ? "Completed" : "Terminée", color: "text-emerald-700", bg: "bg-emerald-500" },
-    in_progress: { label: lang === "EN" ? "In Progress" : "En cours", color: "text-blue-700", bg: "bg-blue-500" },
-    not_started: { label: lang === "EN" ? "Not Started" : "Non démarrée", color: "text-gray-500", bg: "bg-gray-300" },
-    delayed: { label: lang === "EN" ? "Delayed" : "Retardée", color: "text-rose-700", bg: "bg-rose-500" },
-    blocked: { label: lang === "EN" ? "Blocked" : "Bloquée", color: "text-rose-700", bg: "bg-rose-300" },
+    completed: { 
+      label: lang === "EN" ? "Completed" : 
+             lang === "FR" ? "Terminée" : 
+             lang === "PT" ? "Concluída" : 
+             "Completada", 
+      color: "text-emerald-700", 
+      bg: "bg-emerald-500" 
+    },
+    in_progress: { 
+      label: lang === "EN" ? "In Progress" : 
+             lang === "FR" ? "En cours" : 
+             lang === "PT" ? "Em Andamento" : 
+             "En Progreso", 
+      color: "text-blue-700", 
+      bg: "bg-blue-500" 
+    },
+    not_started: { 
+      label: lang === "EN" ? "Not Started" : 
+             lang === "FR" ? "Non démarrée" : 
+             lang === "PT" ? "Não Iniciada" : 
+             "No Iniciada", 
+      color: "text-gray-500", 
+      bg: "bg-gray-300" 
+    },
+    delayed: { 
+      label: lang === "EN" ? "Delayed" : 
+             lang === "FR" ? "Retardée" : 
+             lang === "PT" ? "Atrasada" : 
+             "Retrasada", 
+      color: "text-rose-700", 
+      bg: "bg-rose-500" 
+    },
+    blocked: { 
+      label: lang === "EN" ? "Blocked" : 
+             lang === "FR" ? "Bloquée" : 
+             lang === "PT" ? "Bloqueada" : 
+             "Bloqueada", 
+      color: "text-rose-700", 
+      bg: "bg-rose-300" 
+    },
   };
 
   const getBarStyle = (task: Task) => {
@@ -132,12 +252,18 @@ export default function SchedulingPage() {
         })
       );
       toast.success(
-        lang === "EN"
-          ? `Schedule recalculated. ${data.affectedCount ?? 0} tasks adjusted.`
-          : `Calendrier recalculé. ${data.affectedCount ?? 0} tâches ajustées.`
+        lang === "EN" ? `Schedule recalculated. ${data.affectedCount ?? 0} tasks adjusted.` :
+        lang === "FR" ? `Calendrier recalculé. ${data.affectedCount ?? 0} tâches ajustées.` :
+        lang === "PT" ? `Cronograma recalculado. ${data.affectedCount ?? 0} tarefas ajustadas.` :
+        `Cronograma recalculado. Se ajustaron ${data.affectedCount ?? 0} tareas.`
       );
     } catch {
-      toast.error(lang === "EN" ? "Error optimizing schedule. Verify API key." : "Erreur d'optimisation. Vérifiez votre clé API.");
+      toast.error(
+        lang === "EN" ? "Error optimizing schedule. Verify API key." :
+        lang === "FR" ? "Erreur d'optimisation du calendrier. Vérifiez votre clé API." :
+        lang === "PT" ? "Erro ao otimizar o cronograma. Verifique a chave da API." :
+        "Error al optimizar el cronograma. Verifique la clave API."
+      );
     } finally {
       setIsOptimizing(false);
       setDelayedTask(null);
@@ -145,9 +271,11 @@ export default function SchedulingPage() {
   };
 
   const phases = [...new Set(tasks.map((t) => t.phase))];
-  const months = lang === "EN"
-    ? ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"]
-    : ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct"];
+  const months = 
+    lang === "EN" ? ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"] :
+    lang === "FR" ? ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct"] :
+    lang === "PT" ? ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out"] :
+    ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct"];
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -194,13 +322,14 @@ export default function SchedulingPage() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border border-gray-150">
             <h3 className="font-bold text-gray-900 text-lg mb-2">{t("register_delay")}</h3>
             <p className="text-gray-400 font-medium text-xs mb-5 leading-relaxed">
-              {lang === "EN"
-                ? "Enter the delay period below. BuildrAI will automatically adjust dependent paths using predictive resource allocation."
-                : "Indiquez la durée du retard. BuildrAI ajustera automatiquement les chemins dépendants à l'aide de l'IA."}
+              {lang === "EN" ? "Enter the delay period below. BuildrAI will automatically adjust dependent paths using predictive resource allocation." :
+               lang === "FR" ? "Indiquez la durée du retard. BuildrAI ajustera automatiquement les chemins dépendants à l'aide de l'IA." :
+               lang === "PT" ? "Insira o período de atraso abaixo. O BuildrAI ajustará automaticamente os caminhos dependentes usando alocação preditiva de recursos de IA." :
+               "Indique el período de retraso a continuación. BuildrAI ajustará automáticamente las rutas dependientes utilizando la asignación predictiva de recursos de IA."}
             </p>
             <div className="mb-4">
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                {lang === "EN" ? "Delayed Task" : "Tâche Retardée"}
+                {lang === "EN" ? "Delayed Task" : lang === "FR" ? "Tâche Retardée" : lang === "PT" ? "Tarefa Atrasada" : "Tarea Retrasada"}
               </label>
               <select
                 value={delayedTask ?? ""}
@@ -217,7 +346,7 @@ export default function SchedulingPage() {
             </div>
             <div className="mb-6">
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                {t("delay_days")} <span className="text-brand-600 font-extrabold">{delayDays} {lang === "EN" ? "days" : "jours"}</span>
+                {t("delay_days")} <span className="text-brand-600 font-extrabold">{delayDays} {lang === "EN" ? "days" : lang === "FR" ? "jours" : lang === "PT" ? "dias" : "días"}</span>
               </label>
               <input
                 type="range"
@@ -228,8 +357,8 @@ export default function SchedulingPage() {
                 className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-brand-600"
               />
               <div className="flex justify-between text-[10px] font-bold text-gray-400 mt-2">
-                <span>1 {lang === "EN" ? "day" : "jour"}</span>
-                <span>60 {lang === "EN" ? "days" : "jours"}</span>
+                <span>1 {lang === "EN" ? "day" : lang === "FR" ? "jour" : lang === "PT" ? "dia" : "día"}</span>
+                <span>60 {lang === "EN" ? "days" : lang === "FR" ? "jours" : lang === "PT" ? "dias" : "días"}</span>
               </div>
             </div>
             <div className="flex gap-3">

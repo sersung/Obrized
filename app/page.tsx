@@ -28,7 +28,11 @@ export default function LandingPage() {
   }, []);
 
   const toggleLanguage = () => {
-    const nextLang = lang === "EN" ? "FR" : "EN";
+    let nextLang: Language = "EN";
+    if (lang === "EN") nextLang = "FR";
+    else if (lang === "FR") nextLang = "PT";
+    else if (lang === "PT") nextLang = "ES";
+    else nextLang = "EN";
     localStorage.setItem("buildr_lang", nextLang);
     setLang(nextLang);
     window.location.reload();
@@ -104,13 +108,13 @@ export default function LandingPage() {
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
             <a href="#features" className="hover:text-gray-900 transition-colors font-medium">
-              {lang === "EN" ? "Features" : "Fonctionnalités"}
+              {lang === "EN" ? "Features" : lang === "FR" ? "Fonctionnalités" : lang === "PT" ? "Funcionalidades" : "Funcionalidades"}
             </a>
             <a href="#pain-points" className="hover:text-gray-900 transition-colors font-medium">
-              {lang === "EN" ? "Problems We Solve" : "Problèmes résolus"}
+              {lang === "EN" ? "Problems We Solve" : lang === "FR" ? "Problèmes résolus" : lang === "PT" ? "Problemas que Resolvemos" : "Problemas que Resolvemos"}
             </a>
             <a href="#stats" className="hover:text-gray-900 transition-colors font-medium">
-              {lang === "EN" ? "Results" : "Résultats"}
+              {lang === "EN" ? "Results" : lang === "FR" ? "Résultats" : lang === "PT" ? "Resultados" : "Resultados"}
             </a>
           </nav>
           <div className="flex items-center gap-3">

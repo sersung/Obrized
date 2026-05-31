@@ -30,7 +30,11 @@ export default function Sidebar() {
   }, []);
 
   const toggleLanguage = () => {
-    const nextLang = lang === "EN" ? "FR" : "EN";
+    let nextLang: Language = "EN";
+    if (lang === "EN") nextLang = "FR";
+    else if (lang === "FR") nextLang = "PT";
+    else if (lang === "PT") nextLang = "ES";
+    else nextLang = "EN";
     localStorage.setItem("buildr_lang", nextLang);
     setLang(nextLang);
     window.location.reload();
@@ -127,7 +131,7 @@ export default function Sidebar() {
         >
           <span className="flex items-center gap-2">
             <Globe className="w-4 h-4 text-brand-500 animate-pulse" />
-            <span>Language / Langue</span>
+            <span>Language / Idioma</span>
           </span>
           <span className="bg-brand-600/20 text-brand-400 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">
             {lang}
