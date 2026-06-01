@@ -176,52 +176,52 @@ export default function DashboardPage() {
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-5">
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md hover:border-gray-200/60 transition-all duration-250">
-          <div className="flex items-start justify-between mb-4">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center text-blue-600 bg-blue-50">
-              <Calendar className="w-5.5 h-5.5" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-gray-200/60 transition-all duration-250">
+          <div className="flex items-start justify-between mb-3 sm:mb-4">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-blue-600 bg-blue-50">
+              <Calendar className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.75 rounded-full bg-slate-50 text-slate-500">
               {t("total")}
             </span>
           </div>
-          <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{estimates.length}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">{estimates.length}</p>
           <p className="text-xs font-semibold text-gray-400 mt-1">{t("estimates")}</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md hover:border-gray-200/60 transition-all duration-250">
-          <div className="flex items-start justify-between mb-4">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center text-emerald-600 bg-emerald-50">
-              <DollarSign className="w-5.5 h-5.5" />
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-gray-200/60 transition-all duration-250">
+          <div className="flex items-start justify-between mb-3 sm:mb-4">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-emerald-600 bg-emerald-50">
+              <DollarSign className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.75 rounded-full bg-slate-50 text-slate-500">
               {t("pending")}
             </span>
           </div>
-          <p className="text-3xl font-extrabold text-gray-900 tracking-tight">
+          <p className="text-xl sm:text-3xl font-extrabold text-gray-900 tracking-tight truncate">
             {pendingAmount > 0 ? fmt(pendingAmount) : "—"}
           </p>
           <p className="text-xs font-semibold text-gray-400 mt-1">{t("accounts_receivable")}</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md hover:border-gray-200/60 transition-all duration-250">
-          <div className="flex items-start justify-between mb-4">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center text-purple-600 bg-purple-50">
-              <FileText className="w-5.5 h-5.5" />
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-gray-200/60 transition-all duration-250">
+          <div className="flex items-start justify-between mb-3 sm:mb-4">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-purple-600 bg-purple-50">
+              <FileText className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.75 rounded-full bg-slate-50 text-slate-500">
               {t("total")}
             </span>
           </div>
-          <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{invoices.length}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">{invoices.length}</p>
           <p className="text-xs font-semibold text-gray-400 mt-1">{t("invoices")}</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md hover:border-gray-200/60 transition-all duration-250">
-          <div className="flex items-start justify-between mb-4">
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${urgentInvoices.length > 0 ? "text-rose-600 bg-rose-50 animate-pulse" : "text-gray-400 bg-gray-50"}`}>
-              <Clock className="w-5.5 h-5.5" />
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-gray-200/60 transition-all duration-250">
+          <div className="flex items-start justify-between mb-3 sm:mb-4">
+            <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center ${urgentInvoices.length > 0 ? "text-rose-600 bg-rose-50 animate-pulse" : "text-gray-400 bg-gray-50"}`}>
+              <Clock className="w-5 h-5" />
             </div>
             {urgentInvoices.length > 0 && (
               <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.75 rounded-full bg-rose-50 text-rose-700">
@@ -229,7 +229,7 @@ export default function DashboardPage() {
               </span>
             )}
           </div>
-          <p className="text-3xl font-extrabold text-gray-900 tracking-tight">
+          <p className="text-xl sm:text-3xl font-extrabold text-gray-900 tracking-tight truncate">
             {urgentAmount > 0 ? fmt(urgentAmount) : "—"}
           </p>
           <p className="text-xs font-semibold text-gray-400 mt-1">{t("due_in_7_days")}</p>
@@ -407,19 +407,19 @@ export default function DashboardPage() {
       {/* Quick Actions Panel */}
       <div>
         <h2 className="font-bold text-gray-900 text-base mb-4">{t("quick_actions")}</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
           {quickActions.map((action) => (
             <Link
               key={action.href}
               href={action.href}
-              className="bg-white border border-gray-100 rounded-2xl p-6 hover:border-gray-250/70 hover:shadow-md hover:shadow-gray-200/10 hover:translate-y-[-2px] transition-all duration-250 group"
+              className="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6 hover:border-gray-250/70 hover:shadow-md hover:shadow-gray-200/10 hover:translate-y-[-2px] transition-all duration-250 group"
             >
-              <div className={`w-11 h-11 rounded-xl border flex items-center justify-center mb-4 transition-all duration-200 ${action.color}`}>
+              <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl border flex items-center justify-center mb-3 sm:mb-4 transition-all duration-200 ${action.color}`}>
                 {action.icon}
               </div>
               <p className="font-bold text-gray-900 text-sm group-hover:text-brand-600 transition-colors">{action.label}</p>
-              <p className="text-xs text-gray-400 mt-1 font-semibold leading-relaxed line-clamp-2">{action.description}</p>
-              <div className="mt-5 flex items-center gap-1.5 text-xs text-gray-300 font-bold tracking-wide group-hover:text-brand-600 transition-colors uppercase">
+              <p className="text-xs text-gray-400 mt-1 font-semibold leading-relaxed line-clamp-2 hidden sm:block">{action.description}</p>
+              <div className="mt-3 sm:mt-5 flex items-center gap-1.5 text-xs text-gray-300 font-bold tracking-wide group-hover:text-brand-600 transition-colors uppercase">
                 <span>{lang === "EN" ? "Open" : "Ouvrir"}</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.75 transition-transform" />
               </div>

@@ -15,11 +15,16 @@ import {
   ChevronRight,
   Globe,
   CheckCircle2,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations, Language } from "@/lib/translations";
 
-export default function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
   const [lang, setLang] = useState<Language>("EN");
   const [showLangMenu, setShowLangMenu] = useState(false);
@@ -73,13 +78,17 @@ export default function Sidebar() {
     },
   ];
 
+  const handleNavClick = () => {
+    if (onClose) onClose();
+  };
+
   return (
-    <aside className="w-64 bg-slate-950 border-r border-slate-800/60 min-h-screen flex flex-col justify-between">
+    <aside className="w-64 bg-slate-950 border-r border-slate-800/60 h-full min-h-screen flex flex-col justify-between">
       {/* Top Section */}
       <div className="flex flex-col flex-1">
-        {/* Logo */}
-        <div className="p-6 border-b border-slate-900/60">
-          <Link href="/" className="flex items-center gap-3 group">
+        {/* Logo + close button on mobile */}
+        <div className="p-6 border-b border-slate-900/60 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group" onClick={handleNavClick}>
             <div className="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 duration-300 shadow-lg shadow-brand-600/25">
               <HardHat className="w-5 h-5 text-white" />
             </div>
@@ -88,6 +97,16 @@ export default function Sidebar() {
               <p className="text-slate-500 text-xs mt-1 font-medium tracking-wide uppercase">{t("intelligent_construction")}</p>
             </div>
           </Link>
+          {/* Close button — mobile only */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="lg:hidden p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+              aria-label="Close menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Navigation */}
@@ -102,6 +121,7 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={handleNavClick}
                 className={cn(
                   "flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 group relative",
                   isActive
@@ -164,6 +184,7 @@ export default function Sidebar() {
         {/* Settings Link */}
         <Link
           href="/settings"
+          onClick={handleNavClick}
           className={cn(
             "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group",
             pathname === "/settings"
