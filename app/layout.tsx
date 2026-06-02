@@ -1,19 +1,37 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import Providers from "@/components/providers";
 import Script from "next/script";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#020617",
+};
 
 export const metadata: Metadata = {
   title: "Obrized — AI Construction Co-Pilot for Canadian Builders",
   description:
     "Engineered specifically for Canadian local laws. Automate blueprints quantity takeoffs, CCDC contract risk audits, WSIB/WorkSafeBC safety logs, and Construction Act Prompt Payment tracking.",
   keywords: [
-    // Brand / Core
     "Obrized",
     "Obrized construction AI",
     "Canadian construction software",
-    // Feature-specific long-tail
     "AI quantity takeoff software Canada",
     "construction estimating software Canada",
     "blueprint quantity takeoff automation",
@@ -26,19 +44,17 @@ export const metadata: Metadata = {
     "construction payment tracker Ontario",
     "construction scheduling software Gantt",
     "NBC National Building Code compliance checker",
-    // Location + audience
     "construction software for Canadian builders",
     "construction management app Ontario",
     "construction app British Columbia",
     "CDAP grant eligible software",
     "AI construction co-pilot",
-    // Tech-savvy / competitive keywords
     "Procore alternative Canada",
     "Buildertrend alternative Canada",
     "construction AI tool",
     "AI estimating tool general contractor",
     "AI Quantity Takeoff tool",
-    "Canadian Builders Estimating App"
+    "Canadian Builders Estimating App",
   ],
   authors: [{ name: "Obrized team", url: "https://obrized.com" }],
   metadataBase: new URL("https://obrized.com"),
@@ -68,73 +84,58 @@ export const metadata: Metadata = {
   },
 };
 
-// JSON-LD Structured Data for Google Rich Snippets
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "Obrized",
-  "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Web",
-  "url": "https://obrized.com",
-  "description": "AI-powered construction co-pilot engineered specifically for Canadian local laws — automating quantity takeoffs, CCDC contract audits, WSIB safety logs, and Prompt Payment compliance.",
-  "inLanguage": ["en-CA", "fr-CA"],
-  "author": {
+  name: "Obrized",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  url: "https://obrized.com",
+  description:
+    "AI-powered construction co-pilot engineered specifically for Canadian local laws — automating quantity takeoffs, CCDC contract audits, WSIB safety logs, and Prompt Payment compliance.",
+  inLanguage: ["en-CA", "fr-CA"],
+  author: {
     "@type": "Organization",
-    "name": "Obrized",
-    "url": "https://obrized.com",
-    "logo": "https://obrized.com/og-image.png",
-    "sameAs": ["https://obrized.com"]
+    name: "Obrized",
+    url: "https://obrized.com",
+    logo: "https://obrized.com/og-image.png",
+    sameAs: ["https://obrized.com"],
   },
-  "aggregateRating": {
+  aggregateRating: {
     "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "bestRating": "5",
-    "worstRating": "1",
-    "ratingCount": "47",
-    "reviewCount": "47"
+    ratingValue: "4.9",
+    bestRating: "5",
+    worstRating: "1",
+    ratingCount: "47",
+    reviewCount: "47",
   },
-  "offers": [
+  offers: [
     {
       "@type": "Offer",
-      "name": "Free Plan",
-      "price": "0",
-      "priceCurrency": "CAD",
-      "priceSpecification": {
-        "@type": "UnitPriceSpecification",
-        "price": "0",
-        "priceCurrency": "CAD",
-        "unitCode": "MON"
-      },
-      "description": "3 AI blueprint analyses, 2 active projects, CCDC templates, basic WSIB safety logs."
+      name: "Free Plan",
+      price: "0",
+      priceCurrency: "CAD",
+      description:
+        "3 AI blueprint analyses, 2 active projects, CCDC templates, basic WSIB safety logs.",
     },
     {
       "@type": "Offer",
-      "name": "Starter Plan",
-      "price": "79",
-      "priceCurrency": "CAD",
-      "priceSpecification": {
-        "@type": "UnitPriceSpecification",
-        "price": "79",
-        "priceCurrency": "CAD",
-        "unitCode": "MON"
-      },
-      "description": "10 active projects, 30 AI blueprint analyses/month, Gantt scheduling, WSIB compliance templates."
+      name: "Starter Plan",
+      price: "79",
+      priceCurrency: "CAD",
+      description:
+        "10 active projects, 30 AI blueprint analyses/month, Gantt scheduling, WSIB compliance templates.",
     },
     {
       "@type": "Offer",
-      "name": "Pro Plan",
-      "price": "189",
-      "priceCurrency": "CAD",
-      "priceSpecification": {
-        "@type": "UnitPriceSpecification",
-        "price": "189",
-        "priceCurrency": "CAD",
-        "unitCode": "MON"
-      },
-      "description": "Unlimited projects and AI takeoffs, voice logs, NBC compliance checks, QuickBooks/Xero integration."
-    }
+      name: "Pro Plan",
+      price: "189",
+      priceCurrency: "CAD",
+      description:
+        "Unlimited projects and AI takeoffs, voice logs, NBC compliance checks, QuickBooks/Xero integration.",
+    },
   ],
-  "featureList": [
+  featureList: [
     "AI Quantity Takeoff from Blueprints",
     "CCDC Contract Risk Audit",
     "WSIB / WorkSafeBC Safety Logs",
@@ -142,8 +143,8 @@ const jsonLd = {
     "Gantt Scheduling with Critical Path",
     "CDAP Funding Eligibility Guide",
     "NBC 2025 Building Code Compliance",
-    "Voice AI Daily Field Reports"
-  ]
+    "Voice AI Daily Field Reports",
+  ],
 };
 
 export default function RootLayout({
@@ -152,35 +153,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
       <head>
-        {/* Performance: Preconnect to critical origins */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://js.stripe.com" />
         <link rel="dns-prefetch" href="https://api.stripe.com" />
-        <link rel="dns-prefetch" href="https://q.stripe.com" />
-        
-        {/* Canonical URL */}
         <link rel="canonical" href="https://obrized.com" />
-        
-        {/* Theme color for mobile browsers */}
-        <meta name="theme-color" content="#020617" />
-        <meta name="color-scheme" content="dark" />
-        
-        {/* Google Fonts preload for Outfit (display font) */}
-        <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap"
-          as="style"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
       </head>
-      <body className="antialiased">
-        {/* JSON-LD Structured Data */}
+      <body className="antialiased font-sans">
         <Script
           id="json-ld-software"
           type="application/ld+json"
