@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Search, Plus, LogOut, User, Menu } from "lucide-react";
+import { Bell, Search, Plus, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, useLogout } from "@/lib/auth-client";
@@ -9,17 +9,16 @@ import { useTranslations, Language } from "@/lib/translations";
 
 interface TopNavProps {
   onMenuToggle?: () => void;
+  sidebarOpen?: boolean;
 }
 
-export default function TopNav({ onMenuToggle }: TopNavProps) {
+export default function TopNav({ onMenuToggle, sidebarOpen }: TopNavProps) {
   const pathname = usePathname();
   const [lang, setLang] = useState<Language>("EN");
 
   useEffect(() => {
     const savedLang = localStorage.getItem("buildr_lang") as Language;
-    if (savedLang) {
-      setLang(savedLang);
-    }
+    if (savedLang) setLang(savedLang);
   }, []);
 
   const { t } = useTranslations(lang);
@@ -68,25 +67,20 @@ export default function TopNav({ onMenuToggle }: TopNavProps) {
   });
 
   return (
-    <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 gap-3">
-      <div className="flex items-center gap-3 min-w-0">
-        {/* Hamburger — mobile only */}
-        <button
-          onClick={onMenuToggle}
-          className="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
-          aria-label="Toggle menu"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-
-        <div className="min-w-0">
-          <h1 className="text-base sm:text-lg font-semibold text-gray-900 tracking-tight truncate">{pageTitle}</h1>
-          <p className="text-[11px] font-medium text-gray-400 capitalize mt-0.5 hidden sm:block truncate">{formattedDate}</p>
-        </div>
+    <header className="h-14 sm:h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 gap-3">
+      {/* Left: title */}
+      <div className="min-w-0">
+        <h1 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight truncate">
+          {pageTitle}
+        </h1>
+        <p className="text-[11px] font-medium text-gray-400 capitalize mt-0.5 hidden sm:block truncate">
+          {formattedDate}
+        </p>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-        {/* Search — hidden on small screens */}
+      {/* Right: actions */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        {/* Search — desktop only */}
         <div className="relative hidden md:block">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -96,22 +90,24 @@ export default function TopNav({ onMenuToggle }: TopNavProps) {
           />
         </div>
 
+        {/* New action button */}
         {newAction && (
           <Link
             href={newAction.href}
-            className="flex items-center gap-1.5 bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/10 transition-all duration-200 whitespace-nowrap"
+            className="flex items-center gap-1.5 bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/10 transition-all duration-200 whitespace-nowrap"
           >
             <Plus className="w-4 h-4 flex-shrink-0" />
             <span className="hidden sm:inline">{newAction.label}</span>
           </Link>
         )}
 
+        {/* Bell */}
         <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0">
           <Bell className="w-5 h-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
         </button>
 
-        {/* User menu */}
+        {/* User menu — avatar + name on desktop */}
         <div className="flex items-center gap-2 pl-2 border-l border-gray-100">
           {(session?.user as any)?.image ? (
             <img
