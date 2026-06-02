@@ -136,23 +136,24 @@ export default function DashboardPage() {
     <div className="space-y-6 animate-fade-in">
       {/* Welcome banner */}
       {isEmpty && (
-        <div className="bg-gradient-to-r from-brand-600 to-brand-700 rounded-2xl p-8 text-white shadow-xl shadow-brand-600/10">
-          <h2 className="text-2xl font-bold mb-2 tracking-tight">
+        <div className="bg-gradient-to-br from-brand-600 to-brand-700 rounded-2xl p-5 sm:p-7 text-white shadow-xl shadow-brand-600/15">
+          <p className="text-brand-200 text-xs font-bold uppercase tracking-widest mb-1">Obrized</p>
+          <h2 className="text-xl sm:text-2xl font-bold mb-2 tracking-tight leading-snug">
             {t("welcome_title")}, {session?.user?.name?.split(" ")[0] || "John"}! 👷
           </h2>
-          <p className="text-brand-100 text-sm mb-6 max-w-xl leading-relaxed">
+          <p className="text-brand-200 text-sm mb-5 leading-relaxed max-w-lg">
             {t("welcome_subtitle")}
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row gap-2.5">
             <Link
               href="/estimating/new"
-              className="bg-white text-brand-700 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-50 hover:scale-102 transition-all duration-200"
+              className="bg-white text-brand-700 px-5 py-3 rounded-xl text-sm font-bold hover:bg-brand-50 transition-all text-center"
             >
               {t("create_first_estimate")}
             </Link>
             <Link
               href="/contracts/new"
-              className="bg-brand-500/50 text-white border border-white/20 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-500/80 hover:scale-102 transition-all duration-200"
+              className="bg-white/15 text-white border border-white/25 px-5 py-3 rounded-xl text-sm font-bold hover:bg-white/25 transition-all text-center"
             >
               {t("analyze_a_contract")}
             </Link>

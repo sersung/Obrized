@@ -8,11 +8,10 @@ import { useSession, useLogout } from "@/lib/auth-client";
 import { useTranslations, Language } from "@/lib/translations";
 
 interface TopNavProps {
-  onMenuToggle?: () => void;
   sidebarOpen?: boolean;
 }
 
-export default function TopNav({ onMenuToggle, sidebarOpen }: TopNavProps) {
+export default function TopNav({ sidebarOpen }: TopNavProps) {
   const pathname = usePathname();
   const [lang, setLang] = useState<Language>("EN");
 
@@ -67,10 +66,10 @@ export default function TopNav({ onMenuToggle, sidebarOpen }: TopNavProps) {
   });
 
   return (
-    <header className="h-14 sm:h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 gap-3">
-      {/* Left: title */}
+    <header className="h-14 sm:h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 gap-3 shadow-sm">
+      {/* Page title */}
       <div className="min-w-0">
-        <h1 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight truncate">
+        <h1 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight truncate leading-tight">
           {pageTitle}
         </h1>
         <p className="text-[11px] font-medium text-gray-400 capitalize mt-0.5 hidden sm:block truncate">
@@ -78,7 +77,7 @@ export default function TopNav({ onMenuToggle, sidebarOpen }: TopNavProps) {
         </p>
       </div>
 
-      {/* Right: actions */}
+      {/* Actions */}
       <div className="flex items-center gap-2 flex-shrink-0">
         {/* Search — desktop only */}
         <div className="relative hidden md:block">
@@ -86,15 +85,15 @@ export default function TopNav({ onMenuToggle, sidebarOpen }: TopNavProps) {
           <input
             type="text"
             placeholder={t("search_projects")}
-            className="pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent w-48 lg:w-56 transition-all duration-200"
+            className="pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent w-48 lg:w-56 transition-all"
           />
         </div>
 
-        {/* New action button */}
+        {/* New action */}
         {newAction && (
           <Link
             href={newAction.href}
-            className="flex items-center gap-1.5 bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/10 transition-all duration-200 whitespace-nowrap"
+            className="flex items-center gap-1.5 bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brand-700 transition-all whitespace-nowrap shadow-sm shadow-brand-600/20"
           >
             <Plus className="w-4 h-4 flex-shrink-0" />
             <span className="hidden sm:inline">{newAction.label}</span>
@@ -107,7 +106,7 @@ export default function TopNav({ onMenuToggle, sidebarOpen }: TopNavProps) {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
         </button>
 
-        {/* User menu — avatar + name on desktop */}
+        {/* User */}
         <div className="flex items-center gap-2 pl-2 border-l border-gray-100">
           {(session?.user as any)?.image ? (
             <img
