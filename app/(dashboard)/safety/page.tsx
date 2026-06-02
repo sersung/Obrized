@@ -80,7 +80,7 @@ export default function SafetyPage() {
       </div>
 
       {/* Action bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="font-bold text-gray-900 text-base">{t("safety_title")}</h2>
           <p className="text-xs text-gray-400 font-semibold mt-1">
@@ -89,7 +89,7 @@ export default function SafetyPage() {
         </div>
         <Link
           href="/safety/new"
-          className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/10 transition-all duration-200"
+          className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/10 transition-all duration-200 self-start sm:self-auto whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
           {t("new_report")}
@@ -119,7 +119,8 @@ export default function SafetyPage() {
       {/* Table */}
       {reports.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[560px]">
             <thead>
               <tr className="bg-gray-50/50 border-b border-gray-100">
                 <th className="text-left px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">
@@ -189,6 +190,7 @@ export default function SafetyPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
