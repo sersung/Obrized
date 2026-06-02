@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import Providers from "@/components/providers";
 import Script from "next/script";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
+import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistration";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -157,6 +159,13 @@ export default function RootLayout({
       <head>
         {/* viewport — explicit tag ensures mobile browsers render at device width */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        {/* PWA meta tags */}
+        <meta name="application-name" content="Obrized" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Obrized" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
         <link rel="dns-prefetch" href="https://js.stripe.com" />
         <link rel="dns-prefetch" href="https://api.stripe.com" />
         <link rel="canonical" href="https://obrized.com" />
@@ -168,9 +177,11 @@ export default function RootLayout({
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <ServiceWorkerRegistration />
         <Providers>
           {children}
           <Toaster richColors position="top-right" />
+          <InstallPrompt />
         </Providers>
       </body>
     </html>
