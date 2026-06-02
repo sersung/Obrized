@@ -1,54 +1,41 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import TopNav from "@/components/layout/TopNav";
-import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import MobileTopNav from "@/components/layout/MobileTopNav";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    if (sidebarOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => { document.body.style.overflow = ""; };
-  }, [sidebarOpen]);
-
-  const close = () => setSidebarOpen(false);
-  const toggle = () => setSidebarOpen((prev) => !prev);
-
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <>
+      {/* ── Mobile: top bar (fixed) + slide-down menu ── */}
+      <MobileTopNav />
 
-      {/* ── Desktop sidebar (always visible on lg+) ── */}
-      <div className="hidden lg:flex lg:flex-shrink-0">
-        <Sidebar />
-      </div>
+      {/* ── Desktop + Mobile container ── */}
+      <div className="flex h-screen overflow-hidden bg-gray-50">
 
-      {/* ── Mobile full-screen menu overlay ── */}
-      {sidebarOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex flex-col bg-slate-950 animate-fade-in">
-          <Sidebar onClose={close} mobile />
+        {/* Desktop sidebar — hidden on mobile */}
+        <div className="hidden lg:flex lg:flex-shrink-0">
+          <Sidebar />
         </div>
-      )}
 
-      {/* ── Main area ── */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <TopNav sidebarOpen={sidebarOpen} />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 pb-24 lg:pb-6 scrollbar-thin">
-          {children}
-        </main>
+        {/* Main area */}
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          {/* Desktop top nav — hidden on mobile */}
+          <div className="hidden lg:block">
+            <TopNav />
+          </div>
+
+          {/* Content — pt-14 on mobile compensates for fixed top bar */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 pt-[72px] lg:pt-6 scrollbar-thin">
+            {children}
+          </main>
+        </div>
+
       </div>
-
-      {/* ── Mobile bottom navigation ── */}
-      <MobileBottomNav onMenuOpen={toggle} menuOpen={sidebarOpen} />
-    </div>
+    </>
   );
 }
