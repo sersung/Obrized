@@ -155,6 +155,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
       <head>
+        {/* viewport — explicit tag ensures mobile browsers render at device width */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <link rel="dns-prefetch" href="https://js.stripe.com" />
         <link rel="dns-prefetch" href="https://api.stripe.com" />
         <link rel="canonical" href="https://obrized.com" />
