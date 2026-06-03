@@ -60,12 +60,12 @@ For production database persistence, configure Supabase:
 1. Go to [Supabase Console](https://supabase.com/) and create a new project.
 2. Go to **Project Settings** > **API** to grab your **Project URL** (`SUPABASE_URL`) and **service_role API key** (`SUPABASE_SERVICE_KEY`).
 3. Add them as environment variables in Vercel.
-4. Run the following SQL schema in the Supabase **SQL Editor** to provision your database tables:
+4. Crie as tabelas e ative o RLS (Row Level Security) executando as seguintes queries no **SQL Editor** do Supabase:
 
 ```sql
--- Profiles table to store users
-CREATE TABLE public.profiles (
-  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+-- Tabela de perfis para usuários
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   name TEXT,
   company TEXT,
@@ -75,12 +75,17 @@ CREATE TABLE public.profiles (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Enable Row Level Security (RLS)
+-- Ativar Row Level Security (RLS) em todas as tabelas públicas
+-- Isso impede o acesso anônimo público direto usando a chave "anon"
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.estimates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contracts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.safety_reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
 
--- Allow users to read and update their own profile
-CREATE POLICY "Allow public read for profiles" ON public.profiles FOR SELECT USING (true);
-CREATE POLICY "Allow individual update" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+-- Nota de Segurança: Como as rotas de API do Next.js realizam operações do lado do servidor
+-- usando a chave SUPABASE_SERVICE_KEY (service_role), as políticas de RLS são ignoradas de forma segura.
+-- Portanto, nenhuma política adicional é necessária para o cliente anônimo (anon), mantendo os dados 100% protegidos.
 ```
 
-Once configured, Vercel will automatically connect to your live Supabase database and persist registered users, estimates, contracts, daily safety logs, and proper invoices!
+Uma vez configurado, o Vercel se conectará automaticamente ao banco do Supabase e persistirá todas as informações com segurança!
