@@ -57,35 +57,11 @@ BuildrAI uses an **automatic local offline database mock** (based on local JSON 
 
 For production database persistence, configure Supabase:
 
-1. Go to [Supabase Console](https://supabase.com/) and create a new project.
-2. Go to **Project Settings** > **API** to grab your **Project URL** (`SUPABASE_URL`) and **service_role API key** (`SUPABASE_SERVICE_KEY`).
-3. Add them as environment variables in Vercel.
-4. Crie as tabelas e ative o RLS (Row Level Security) executando as seguintes queries no **SQL Editor** do Supabase:
+1. Vá para o [Supabase Console](https://supabase.com/) e crie um novo projeto.
+2. Vá em **Project Settings** > **API** para copiar a URL do seu projeto (`SUPABASE_URL`) e a chave secreta service role (`SUPABASE_SERVICE_KEY`).
+3. Adicione-as como variáveis de ambiente na Vercel.
+4. Crie todas as tabelas necessárias e ative o RLS (Row Level Security) copiando e executando o script completo contido no arquivo [supabase_schema.sql](file:///C:/Users/pc/.gemini/antigravity/scratch/buildr-ai/supabase_schema.sql) na raiz do projeto dentro do **SQL Editor** do Supabase.
 
-```sql
--- Tabela de perfis para usuários
-CREATE TABLE IF NOT EXISTS public.profiles (
-  id UUID PRIMARY KEY,
-  email TEXT UNIQUE NOT NULL,
-  name TEXT,
-  company TEXT,
-  password_hash TEXT,
-  provider TEXT,
-  avatar_url TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- Ativar Row Level Security (RLS) em todas as tabelas públicas
--- Isso impede o acesso anônimo público direto usando a chave "anon"
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.estimates ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.contracts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.safety_reports ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
-
--- Nota de Segurança: Como as rotas de API do Next.js realizam operações do lado do servidor
--- usando a chave SUPABASE_SERVICE_KEY (service_role), as políticas de RLS são ignoradas de forma segura.
--- Portanto, nenhuma política adicional é necessária para o cliente anônimo (anon), mantendo os dados 100% protegidos.
-```
+Uma vez executado o script, as tabelas `profiles`, `estimates`, `contracts`, `safety_reports` e `invoices` estarão criadas e seguras com o RLS ativado!
 
 Uma vez configurado, o Vercel se conectará automaticamente ao banco do Supabase e persistirá todas as informações com segurança!
