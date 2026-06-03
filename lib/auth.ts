@@ -1,4 +1,5 @@
 import { currentUser } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 
 export type Profile = {
   id: string;
@@ -14,6 +15,25 @@ export const authOptions = {};
 
 // Server-side session retrieval using Clerk
 export async function getServerSession(options?: any): Promise<any> {
+  try {
+    // Check if client-side bypass is enabled via cookies
+    const cookieStore = cookies();
+    const demoBypass = (cookieStore instanceof Promise ? await cookieStore : cookieStore).get("obrized_demo_bypass")?.value === "true";
+    if (demoBypass) {
+      return {
+        user: {
+          id: "1",
+          email: "john.carter@jcconstruction.ca",
+          name: "John Carter",
+          image: null,
+          company: "JC Construction Ltd.",
+        }
+      };
+    }
+  } catch (e) {
+    // Ignore and proceed
+  }
+
   try {
     const user = await currentUser();
     if (!user) return null;

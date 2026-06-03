@@ -6,6 +6,10 @@ import { useCallback } from "react";
 // ─── useSession hook ────────────────────────────────────────────────────────
 // Returns current session data, works with and without Clerk configured.
 export function useSession() {
+  const isDemoBypass = typeof window !== "undefined" && 
+    (localStorage.getItem("obrized_demo_bypass") === "true" || 
+     document.cookie.split("; ").find(row => row.startsWith("obrized_demo_bypass="))?.split("=")[1] === "true");
+
   let user: ReturnType<typeof useUser>["user"] = null;
   let isLoaded = false;
   let isSignedIn = false;
@@ -26,6 +30,22 @@ export function useSession() {
           name: "John Carter",
           image: null,
           company: "JC Construction Ltd.",
+        },
+      },
+      status: "authenticated" as const,
+    };
+  }
+
+  // If demo bypass is active, immediately return authenticated demo session
+  if (isDemoBypass) {
+    return {
+      data: {
+        user: {
+          id: "demo-user",
+          email: (typeof window !== "undefined" && localStorage.getItem("obrized_email")) || "john.carter@jcconstruction.ca",
+          name: (typeof window !== "undefined" && localStorage.getItem("obrized_contractor_name")) || "John Carter",
+          image: null,
+          company: (typeof window !== "undefined" && localStorage.getItem("obrized_company_name")) || "JC Construction Ltd.",
         },
       },
       status: "authenticated" as const,
@@ -70,16 +90,33 @@ export function useLogout(callbackUrl = "/login") {
   }
 
   const logout = useCallback(async () => {
+    const keys = [
+      "buildr_lang",
+      "obrized_plan",
+      "obrized_billing",
+      "obrized_labour_rate",
+      "obrized_province",
+      "obrized_company_name",
+      "obrized_contractor_name",
+      "obrized_email",
+      "obrized_demo_bypass",
+    ];
+
     if (clerkSignOut) {
       try {
         await clerkSignOut();
+        // Clear local storage keys related to session
+        keys.forEach((k) => localStorage.removeItem(k));
+        document.cookie = "obrized_demo_bypass=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         window.location.href = callbackUrl;
         return;
       } catch {
         // fall through to simple redirect
       }
     }
-    // Offline/demo mode: just redirect
+    // Offline/demo mode: clear storage and redirect
+    keys.forEach((k) => localStorage.removeItem(k));
+    document.cookie = "obrized_demo_bypass=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     window.location.href = callbackUrl;
   }, [clerkSignOut, callbackUrl]);
 

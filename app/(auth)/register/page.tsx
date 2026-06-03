@@ -11,6 +11,10 @@ export default function RegisterPage() {
 
   const handleDemoBypass = () => {
     setLoading(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("obrized_demo_bypass", "true");
+      document.cookie = "obrized_demo_bypass=true; path=/; max-age=86400; SameSite=Lax";
+    }
     setTimeout(() => {
       router.push("/dashboard");
     }, 500);

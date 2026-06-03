@@ -11,6 +11,10 @@ export default function LoginPage() {
 
   const handleDemoLogin = () => {
     setLoading(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("obrized_demo_bypass", "true");
+      document.cookie = "obrized_demo_bypass=true; path=/; max-age=86400; SameSite=Lax";
+    }
     // Client-side mock will automatically authorize the demo user
     setTimeout(() => {
       router.push("/dashboard");
