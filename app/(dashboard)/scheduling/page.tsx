@@ -300,7 +300,7 @@ export default function SchedulingPage() {
       </div>
 
       {/* Project selector */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 flex items-center justify-between shadow-sm">
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm">
         <div>
           <h3 className="font-bold text-gray-900 text-base">Maple Ridge Condominium</h3>
           <p className="text-xs text-gray-400 font-semibold mt-1">Toronto, ON · Jan 2025 – Oct 2025 · $1.2M</p>
@@ -415,13 +415,16 @@ export default function SchedulingPage() {
         </div>
 
         {/* Month headers */}
-        <div className="pl-[220px] pr-6 border-b border-gray-150 overflow-x-auto bg-slate-50/20">
-          <div className="flex" style={{ minWidth: "800px" }}>
-            {months.map((m) => (
-              <div key={m} className="flex-1 text-center text-[10px] font-bold text-gray-400 py-3.5 border-r border-gray-100 last:border-0 uppercase tracking-wider">
-                {m}
-              </div>
-            ))}
+        <div className="border-b border-gray-150 overflow-x-auto bg-slate-50/20">
+          <div className="flex" style={{ minWidth: "1020px" }}>
+            <div className="w-[220px] flex-shrink-0" />
+            <div className="flex flex-1">
+              {months.map((m) => (
+                <div key={m} className="flex-1 text-center text-[10px] font-bold text-gray-400 py-3.5 border-r border-gray-100 last:border-0 uppercase tracking-wider">
+                  {m}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
