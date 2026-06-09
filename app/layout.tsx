@@ -168,7 +168,6 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon.svg" />
         <link rel="dns-prefetch" href="https://js.stripe.com" />
         <link rel="dns-prefetch" href="https://api.stripe.com" />
-        <link rel="canonical" href="https://obrized.com" />
       </head>
       <body className="antialiased font-sans">
         <Script
@@ -178,6 +177,20 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ServiceWorkerRegistration />
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">{`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
+            `}</Script>
+          </>
+        )}
         <Providers>
           {children}
           <Toaster richColors position="top-right" />

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import {
   HardHat,
   FileText,
@@ -10,13 +11,10 @@ import {
   DollarSign,
   ArrowRight,
   CheckCircle2,
-  Zap,
-  TrendingUp,
   Users,
   Globe,
   ChevronRight,
   Star,
-  Play,
   Sparkles,
   HelpCircle,
   X,
@@ -58,7 +56,6 @@ export default function LandingPage() {
     localStorage.setItem("buildr_lang", selectedLang);
     setLang(selectedLang);
     setShowLangMenu(false);
-    window.location.reload();
   };
 
   const { t } = useTranslations(lang);
@@ -188,11 +185,12 @@ export default function LandingPage() {
               )}
             </div>
             <Link
-              href="/dashboard"
+              href="/register"
               className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 px-5 py-2.5 rounded-xl text-sm font-extrabold hover:shadow-lg hover:shadow-amber-500/15 transition-all duration-300 flex items-center gap-2"
             >
               {t("access_platform")} <ArrowRight className="w-4 h-4 text-slate-950 stroke-[3]" />
             </Link>
+
           </div>
         </div>
       </header>
@@ -225,21 +223,21 @@ export default function LandingPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
           <div className="flex flex-col items-center">
             <Link
-              href="/dashboard"
+              href="/register"
               className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 px-8 py-4 rounded-xl text-lg font-black hover:shadow-xl hover:shadow-amber-500/25 transition-all duration-300 flex items-center justify-center gap-2.5 min-w-[240px]"
             >
               Start Free Trial <Sparkles className="w-5 h-5 text-slate-950" />
             </Link>
-            <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-2.5">No Credit Card Required · 14-Day Trial</span>
+            <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-2.5">No Credit Card Required · 14-Day Free Trial</span>
           </div>
           <div className="flex flex-col items-center">
             <a
               href="#features"
               className="border border-slate-800 text-slate-300 px-8 py-4 rounded-xl text-lg font-bold hover:text-white hover:bg-slate-900 transition-all duration-200 flex items-center justify-center gap-2 min-w-[240px]"
             >
-              <Play className="w-4 h-4 text-amber-500 fill-current" /> Watch Product Tour
+              See How It Works <ArrowRight className="w-4 h-4 text-amber-500" />
             </a>
-            <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-2.5">Quick 90s Demo Video</span>
+            <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-2.5">Interactive Feature Demo</span>
           </div>
         </div>
 
@@ -911,17 +909,12 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <button
-                onClick={() => {
-                  setContractorType("Trade");
-                  setProjectVolume("1-3");
-                  setShowQuiz(true);
-                  setQuizStep(3);
-                }}
-                className="w-full bg-slate-950 text-slate-350 hover:text-white border border-slate-800 hover:bg-slate-900 py-3.5 rounded-xl text-xs font-black transition-all duration-200 mt-2"
+              <Link
+                href="/register?plan=free"
+                className="w-full block text-center bg-slate-950 text-slate-350 hover:text-white border border-slate-800 hover:bg-slate-900 py-3.5 rounded-xl text-xs font-black transition-all duration-200 mt-2"
               >
                 {lang === "EN" ? "Choose Free" : lang === "FR" ? "Choisir Gratuit" : lang === "PT" ? "Escolher Grátis" : "Elegir Gratis"}
-              </button>
+              </Link>
             </div>
 
             {/* Starter Plan */}
@@ -967,17 +960,12 @@ export default function LandingPage() {
                   <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Exportação ilimitada (PDF/CSV)" : lang === "FR" ? "Exportations illimitées (PDF/CSV)" : lang === "ES" ? "Exportaciones ilimitadas (PDF/CSV)" : "Unlimited Export (PDF/CSV)"}</div>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  setContractorType("General");
-                  setProjectVolume("4-10");
-                  setShowQuiz(true);
-                  setQuizStep(3);
-                }}
-                className="w-full bg-slate-950 text-slate-350 hover:text-white border border-slate-800 hover:bg-slate-900 py-3.5 rounded-xl text-xs font-black transition-all duration-200 mt-2"
+              <Link
+                href="/register?plan=starter"
+                className="w-full block text-center bg-slate-950 text-slate-350 hover:text-white border border-slate-800 hover:bg-slate-900 py-3.5 rounded-xl text-xs font-black transition-all duration-200 mt-2"
               >
-                {lang === "EN" ? "Choose Starter" : lang === "FR" ? "Choisir Starter" : lang === "PT" ? "Escolher Starter" : "Elegir Starter"}
-              </button>
+                {lang === "EN" ? "Choose Starter — $79/mo" : lang === "FR" ? "Choisir Starter — $79/mois" : lang === "PT" ? "Escolher Starter — $79/mês" : "Elegir Starter — $79/mes"}
+              </Link>
             </div>
 
             {/* Pro Plan - Highlighted */}
@@ -1027,17 +1015,12 @@ export default function LandingPage() {
                   <div className="flex gap-2 items-center">✓ {lang === "PT" ? "Suporte prioritário e chat ao vivo" : lang === "FR" ? "Support prioritaire et chat en direct" : lang === "ES" ? "Soporte prioritario y chat en vivo" : "Priority live chat support 24/7"}</div>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  setContractorType("Enterprise");
-                  setProjectVolume("10+");
-                  setShowQuiz(true);
-                  setQuizStep(3);
-                }}
-                className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 py-3.5 rounded-xl text-xs font-black transition-all duration-200 shadow-lg shadow-amber-500/10 mt-2"
+              <Link
+                href="/register?plan=pro"
+                className="w-full block text-center bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 py-3.5 rounded-xl text-xs font-black transition-all duration-200 shadow-lg shadow-amber-500/10 mt-2"
               >
-                {lang === "EN" ? "Choose Pro" : lang === "FR" ? "Choisir Pro" : lang === "PT" ? "Escolher Pro" : "Elegir Pro"}
-              </button>
+                {lang === "EN" ? "Start Pro Free Trial" : lang === "FR" ? "Essai Pro Gratuit" : lang === "PT" ? "Iniciar Teste Pro Grátis" : "Iniciar Prueba Pro"}
+              </Link>
             </div>
           </div>
 
@@ -1094,6 +1077,104 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section id="faq" className="py-20 bg-slate-950 border-t border-slate-900">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-display">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-slate-400 text-sm font-semibold mt-2">
+              Everything Canadian builders ask before getting started
+            </p>
+          </div>
+          <div className="space-y-3">
+            {[
+              {
+                q: "Is Obrized compliant with CCDC-2 2020 edition?",
+                a: "Yes. The contract audit engine covers CCDC-2 (2020), CCDC-5A, and CCDC-5B, flagging specific clause numbers that expose contractors to liability under current Canadian standards.",
+              },
+              {
+                q: "Does it work for Quebec / CNESST regulations?",
+                a: "Yes. Obrized is fully bilingual (English / French) and includes safety templates aligned with CNESST alongside WSIB (Ontario) and WorkSafeBC (British Columbia).",
+              },
+              {
+                q: "How long does an AI blueprint takeoff analysis take?",
+                a: "Most drawings are processed in under 5 minutes. Larger multi-trade sets (50+ pages) may take up to 10 minutes. The AI extracts quantities, dimensions, and material specs automatically.",
+              },
+              {
+                q: "Am I eligible for CDAP funding to cover my subscription?",
+                a: "Obrized is a registered CDAP (Canada Digital Adoption Program) vendor. Eligible Canadian SMBs may receive up to $15,000 CAD in grant funding. Contact us for a free eligibility assessment.",
+              },
+              {
+                q: "Is my project data stored in Canada?",
+                a: "Yes. All blueprints, contracts, and compliance records are stored on Canadian servers in compliance with PIPEDA.",
+              },
+              {
+                q: "What happens after my 14-day trial?",
+                a: "Your account automatically moves to the Free plan — no credit card ever required. You keep 2 active projects and 3 AI analyses per month. Upgrade whenever you're ready.",
+              },
+              {
+                q: "Do I need training to start using Obrized?",
+                a: "No. Most users complete their first AI takeoff within 10 minutes of signing up. Each module includes a guided walkthrough and we offer live chat support on all paid plans.",
+              },
+            ].map((item, idx) => (
+              <details
+                key={idx}
+                className="group bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden"
+              >
+                <summary className="px-6 py-5 cursor-pointer flex justify-between items-center text-sm font-bold text-white list-none [&::-webkit-details-marker]:hidden select-none">
+                  <span>{item.q}</span>
+                  <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0 ml-4 transition-transform duration-200 group-open:rotate-90" />
+                </summary>
+                <div className="px-6 pb-5 text-sm text-slate-400 font-medium leading-relaxed border-t border-slate-800 pt-4">
+                  {item.a}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Email Capture — CCDC Checklist Lead Magnet */}
+      <section className="py-16 bg-slate-900/30 border-t border-slate-900">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
+          <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
+            <FileText className="w-6 h-6 text-amber-400" />
+          </div>
+          <h3 className="text-xl sm:text-2xl font-extrabold text-white font-display mb-2">
+            Free CCDC Risk Audit Checklist
+          </h3>
+          <p className="text-slate-400 text-sm font-semibold mb-6 max-w-md mx-auto">
+            47 contract clauses that expose Canadian contractors to liability — and exactly how to negotiate each one.
+          </p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              toast.success("Checklist sent! Check your inbox within a few minutes.");
+              (e.target as HTMLFormElement).reset();
+            }}
+            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+          >
+            <input
+              type="email"
+              placeholder="your@email.com"
+              required
+              className="flex-1 bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-3 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+            />
+            <button
+              type="submit"
+              className="bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 px-6 py-3 rounded-xl text-sm font-black whitespace-nowrap hover:from-amber-600 hover:to-orange-700 transition-all"
+            >
+              Send Me the PDF
+            </button>
+          </form>
+          <p className="text-[10px] text-slate-600 font-semibold mt-3 uppercase tracking-wider">
+            No spam · Unsubscribe anytime
+          </p>
+        </div>
+      </section>
+
       {/* Rebranded Professional Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-16 text-slate-500 text-xs font-medium">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
@@ -1137,10 +1218,10 @@ export default function LandingPage() {
           <div className="space-y-3">
             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Legal</p>
             <ul className="space-y-2">
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">Terms of Service</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">Prompt Payment Act</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">WSIB compliance</Link></li>
+              <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/#faq" className="hover:text-white transition-colors">Prompt Payment FAQ</Link></li>
+              <li><Link href="/#faq" className="hover:text-white transition-colors">WSIB Compliance FAQ</Link></li>
             </ul>
           </div>
         </div>
@@ -1250,7 +1331,7 @@ export default function LandingPage() {
                     Retake Quiz
                   </button>
                   <Link
-                    href="/dashboard"
+                    href="/register"
                     onClick={() => setShowQuiz(false)}
                     className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 py-3.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5"
                   >
