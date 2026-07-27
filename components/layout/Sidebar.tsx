@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Calendar,
   DollarSign,
+  ClipboardList,
   Settings as SettingsIcon,
   Globe,
   CheckCircle2,
@@ -51,6 +52,7 @@ export default function Sidebar({ onClose, mobile = false }: SidebarProps) {
     { href: "/safety", icon: ShieldCheck, label: t("safety") },
     { href: "/scheduling", icon: Calendar, label: t("scheduling") },
     { href: "/payments", icon: DollarSign, label: t("payments") },
+    { href: "/quotes", icon: ClipboardList, label: "Quotes" },
   ];
 
   const handleNavClick = () => {

@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Calendar,
   DollarSign,
+  ClipboardList,
   Settings,
   Bell,
   Plus,
@@ -44,6 +45,7 @@ export default function MobileTopNav() {
     { href: "/safety",     icon: ShieldCheck,      label: t("safety") },
     { href: "/scheduling", icon: Calendar,         label: t("scheduling") },
     { href: "/payments",   icon: DollarSign,       label: t("payments") },
+    { href: "/quotes",     icon: ClipboardList,    label: "Quotes" },
     { href: "/settings",   icon: Settings,         label: t("settings") },
   ];
 
@@ -58,6 +60,8 @@ export default function MobileTopNav() {
     "/scheduling":   t("scheduling"),
     "/payments":     t("payments"),
     "/payments/new": t("new_invoice"),
+    "/quotes":       "Quotes",
+    "/quotes/new":   "New Quote",
     "/settings":     t("settings"),
   };
 
@@ -66,6 +70,7 @@ export default function MobileTopNav() {
     "/contracts":  { href: "/contracts/new",  label: t("new_contract") },
     "/safety":     { href: "/safety/new",     label: t("new_safety_report") },
     "/payments":   { href: "/payments/new",   label: t("new_invoice") },
+    "/quotes":     { href: "/quotes/new",     label: "New Quote" },
   };
 
   const pageTitle = breadcrumbMap[pathname] ?? "Obrized";
@@ -133,7 +138,7 @@ export default function MobileTopNav() {
         <div
           className={cn(
             "overflow-hidden transition-all duration-300 ease-in-out",
-            open ? "max-h-[520px]" : "max-h-0"
+            open ? "max-h-[620px]" : "max-h-0"
           )}
         >
           <div className="bg-white border-t border-gray-100 px-3 pt-2 pb-3">
