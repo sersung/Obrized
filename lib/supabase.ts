@@ -1,201 +1,369 @@
-import { createClient } from "@supabase/supabase-js";
-import fs from "fs";
+/**
+ * lib/supabase.ts
+ *
+ * Self-hosted SQLite database — no Supabase needed.
+ * Data stored at: .data/obrized.db (single file on your VPS)
+ *
+ * Drop-in compatible with the Supabase JS client patterns used across all API routes:
+ *   supabase.from("table").select("*").eq("field", val).order("col").single()
+ *   supabase.from("table").insert({...}).select().single()
+ *   supabase.from("table").update({...}).eq("id", id).select().single()
+ *   supabase.from("table").delete().eq("id", id)
+ */
+
 import path from "path";
+import fs from "fs";
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+const DATA_DIR = path.join(process.cwd(), ".data");
+const DB_PATH = path.join(DATA_DIR, "obrized.db");
 
-// Create a local offline mock database client
-class LocalQueryBuilder {
-  private tableName: string;
-  private filters: Array<{ field: string; val: any }> = [];
-  private orderField: string | null = null;
-  private orderAscending: boolean = true;
-  private isSingle: boolean = false;
-  private dataDir: string;
+// JSON-serialized columns per table
+const JSON_COLS: Record<string, Set<string>> = {
+  estimates:      new Set(["items"]),
+  contracts:      new Set(["analysis"]),
+  safety_reports: new Set(["report"]),
+  invoices:       new Set(["items"]),
+  quotes:         new Set(["items", "payment_methods"]),
+};
+
+// ─── Lazy SQLite singleton ────────────────────────────────────────────────────
+
+let _db: any = null;
+
+function getDb() {
+  if (_db) return _db;
+
+  // Require better-sqlite3 only when actually needed (avoids edge-runtime issues)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const Database = require("better-sqlite3");
+
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+
+  _db = new Database(DB_PATH);
+  _db.pragma("journal_mode = WAL");
+  _db.pragma("foreign_keys = ON");
+
+  _db.exec(`
+    CREATE TABLE IF NOT EXISTS profiles (
+      id TEXT PRIMARY KEY,
+      email TEXT UNIQUE,
+      name TEXT DEFAULT '',
+      company TEXT DEFAULT '',
+      password_hash TEXT,
+      provider TEXT DEFAULT 'credentials',
+      avatar_url TEXT,
+      plan_name TEXT DEFAULT 'Free',
+      billing_cycle TEXT DEFAULT 'monthly',
+      subscription_status TEXT DEFAULT 'active',
+      stripe_customer_id TEXT,
+      stripe_subscription_id TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS estimates (
+      id TEXT PRIMARY KEY,
+      user_email TEXT,
+      project_name TEXT DEFAULT '',
+      province TEXT DEFAULT 'ON',
+      status TEXT DEFAULT 'draft',
+      items TEXT DEFAULT '[]',
+      total_value REAL DEFAULT 0,
+      confidence REAL DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS contracts (
+      id TEXT PRIMARY KEY,
+      user_email TEXT,
+      name TEXT DEFAULT '',
+      contract_type TEXT DEFAULT '',
+      counterparty TEXT DEFAULT '',
+      value REAL DEFAULT 0,
+      overall_risk TEXT DEFAULT 'medium',
+      clauses_count INTEGER DEFAULT 0,
+      analysis TEXT DEFAULT 'null',
+      status TEXT DEFAULT 'analyzed',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS safety_reports (
+      id TEXT PRIMARY KEY,
+      user_email TEXT,
+      project_name TEXT DEFAULT '',
+      report_type TEXT DEFAULT '',
+      raw_transcript TEXT DEFAULT '',
+      report TEXT DEFAULT 'null',
+      report_date TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS invoices (
+      id TEXT PRIMARY KEY,
+      user_email TEXT,
+      invoice_number TEXT DEFAULT '',
+      project_name TEXT DEFAULT '',
+      province TEXT DEFAULT 'ON',
+      items TEXT DEFAULT '[]',
+      subtotal REAL DEFAULT 0,
+      total REAL DEFAULT 0,
+      status TEXT DEFAULT 'submitted',
+      is_proper INTEGER DEFAULT 0,
+      submitted_at TEXT,
+      due_date TEXT,
+      wsib_uploaded INTEGER DEFAULT 0,
+      lien_waiver_uploaded INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS quotes (
+      id TEXT PRIMARY KEY,
+      user_email TEXT NOT NULL,
+      quote_number TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'draft',
+      provider_company TEXT DEFAULT '',
+      provider_name TEXT DEFAULT '',
+      provider_email TEXT DEFAULT '',
+      provider_phone TEXT DEFAULT '',
+      provider_address TEXT DEFAULT '',
+      provider_license TEXT DEFAULT '',
+      provider_hst TEXT DEFAULT '',
+      client_name TEXT DEFAULT '',
+      client_company TEXT DEFAULT '',
+      client_email TEXT DEFAULT '',
+      client_phone TEXT DEFAULT '',
+      client_address TEXT DEFAULT '',
+      project_name TEXT DEFAULT '',
+      project_address TEXT DEFAULT '',
+      project_description TEXT DEFAULT '',
+      valid_until TEXT,
+      items TEXT DEFAULT '[]',
+      subtotal REAL DEFAULT 0,
+      tax_rate REAL DEFAULT 13,
+      tax_amount REAL DEFAULT 0,
+      total REAL DEFAULT 0,
+      advance_percent INTEGER DEFAULT 20,
+      payment_methods TEXT DEFAULT '["e-transfer","cheque"]',
+      payment_due_days INTEGER DEFAULT 30,
+      late_interest_rate REAL DEFAULT 2,
+      include_collection_clause INTEGER DEFAULT 1,
+      include_lien_clause INTEGER DEFAULT 1,
+      custom_notes TEXT DEFAULT '',
+      signed_at TEXT,
+      signed_by TEXT,
+      signature_data TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+
+  // Seed default demo profile if empty
+  const profileCount = (_db.prepare("SELECT COUNT(*) as c FROM profiles").get() as any).c;
+  if (profileCount === 0) {
+    _db.prepare(`
+      INSERT INTO profiles (id, email, name, company, password_hash, provider, plan_name, billing_cycle, subscription_status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      "1",
+      "john.carter@jcconstruction.ca",
+      "John Carter",
+      "JC Construction Ltd.",
+      "$2b$10$DqK8R1MGY04Hz.G66yCM9.ztHJOO7xeFxmPSwSNXas8TCVwmRbFAq",
+      "credentials",
+      "Starter",
+      "monthly",
+      "active",
+    );
+  }
+
+  return _db;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function newId(): string {
+  return Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+}
+
+function serializeRow(tableName: string, row: Record<string, any>): Record<string, any> {
+  const jsonCols = JSON_COLS[tableName] ?? new Set();
+  const result: Record<string, any> = {};
+  for (const [k, v] of Object.entries(row)) {
+    result[k] = jsonCols.has(k) ? JSON.stringify(v ?? null) : v;
+  }
+  return result;
+}
+
+function deserializeRow(tableName: string, row: Record<string, any>): Record<string, any> {
+  if (!row) return row;
+  const jsonCols = JSON_COLS[tableName] ?? new Set();
+  const result: Record<string, any> = {};
+  for (const [k, v] of Object.entries(row)) {
+    if (jsonCols.has(k) && typeof v === "string") {
+      try { result[k] = JSON.parse(v); } catch { result[k] = v; }
+    } else if (k === "is_proper" || k === "wsib_uploaded" || k === "lien_waiver_uploaded" ||
+               k === "include_collection_clause" || k === "include_lien_clause") {
+      result[k] = Boolean(v);
+    } else {
+      result[k] = v;
+    }
+  }
+  return result;
+}
+
+type Op = "select" | "insert" | "update" | "delete";
+
+// ─── Query Builder ────────────────────────────────────────────────────────────
+
+class SQLiteQueryBuilder {
+  private _table: string;
+  private _op: Op = "select";
+  private _filters: Array<[string, any]> = [];
+  private _order: { field: string; asc: boolean } | null = null;
+  private _single = false;
+  private _insertRow: Record<string, any> | null = null;
+  private _updateFields: Record<string, any> | null = null;
 
   constructor(tableName: string) {
-    this.tableName = tableName;
-    this.dataDir = path.join(process.cwd(), ".data");
-    if (!fs.existsSync(this.dataDir)) {
-      try {
-        fs.mkdirSync(this.dataDir, { recursive: true });
-      } catch (e) {}
-    }
+    this._table = tableName;
   }
 
-  private getData(): any[] {
-    const filePath = path.join(this.dataDir, `${this.tableName}.json`);
-    if (!fs.existsSync(filePath)) {
-      // Seed default profiles or items if empty
-      if (this.tableName === "profiles") {
-        return [
-          {
-            id: "1",
-            email: "john.carter@jcconstruction.ca",
-            name: "John Carter",
-            company: "JC Construction Ltd.",
-            // Bcrypt of "password123"
-            password_hash: "$2b$10$DqK8R1MGY04Hz.G66yCM9.ztHJOO7xeFxmPSwSNXas8TCVwmRbFAq",
-            provider: "credentials",
-            avatar_url: null,
-            created_at: new Date().toISOString(),
-            plan_name: "Starter",
-            billing_cycle: "monthly",
-            subscription_status: "active",
-            stripe_customer_id: "cus_mock123",
-            stripe_subscription_id: "sub_mock123"
-          }
-        ];
-      }
-      return [];
-    }
-    try {
-      return JSON.parse(fs.readFileSync(filePath, "utf8"));
-    } catch {
-      return [];
-    }
-  }
-
-  private saveData(data: any[]) {
-    const filePath = path.join(this.dataDir, `${this.tableName}.json`);
-    try {
-      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-    } catch (e) {}
-  }
-
-  select(columns?: string) {
+  select(_cols?: string, _opts?: any) {
+    this._op = "select";
     return this;
   }
 
   eq(field: string, val: any) {
-    this.filters.push({ field, val });
+    this._filters.push([field, val]);
     return this;
   }
 
-  order(field: string, options?: { ascending?: boolean }) {
-    this.orderField = field;
-    this.orderAscending = options?.ascending ?? true;
+  order(field: string, opts?: { ascending?: boolean }) {
+    this._order = { field, asc: opts?.ascending !== false };
     return this;
   }
 
   single() {
-    this.isSingle = true;
+    this._single = true;
     return this;
   }
 
-  async execute() {
-    let items = this.getData();
-
-    // Apply filters
-    for (const filter of this.filters) {
-      items = items.filter((item) => {
-        const itemVal = item[filter.field];
-        if (typeof itemVal === "string" && typeof filter.val === "string") {
-          return itemVal.toLowerCase() === filter.val.toLowerCase();
-        }
-        return itemVal === filter.val;
-      });
-    }
-
-    // Apply sorting
-    if (this.orderField) {
-      items.sort((a, b) => {
-        const valA = a[this.orderField!];
-        const valB = b[this.orderField!];
-        if (valA < valB) return this.orderAscending ? -1 : 1;
-        if (valA > valB) return this.orderAscending ? 1 : -1;
-        return 0;
-      });
-    }
-
-    if (this.isSingle) {
-      if (items.length === 0) {
-        return { data: null, error: { message: "Row not found" } };
-      }
-      return { data: items[0], error: null };
-    }
-
-    return { data: items, error: null };
-  }
-
-  // Promise-like then method so we can await the query builder directly!
-  then(onfulfilled?: (value: any) => any, onrejected?: (reason: any) => any) {
-    return this.execute().then(onfulfilled, onrejected);
-  }
-
-  insert(row: any) {
-    const items = this.getData();
-    const newRow = {
-      id: row.id || Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
-      created_at: new Date().toISOString(),
-      ...row,
+  // ── Insert ──
+  insert(row: Record<string, any>) {
+    this._op = "insert";
+    this._insertRow = row;
+    // Return a chain that supports .select().single()
+    const self = this;
+    return {
+      select: () => ({ single: () => self._execute() }),
+      then: (res?: any, rej?: any) => self._execute().then(res, rej),
     };
-    items.push(newRow);
-    this.saveData(items);
+  }
 
+  // ── Update ──
+  update(fields: Record<string, any>) {
+    this._op = "update";
+    this._updateFields = fields;
+    // Chainable: .eq() → .select() → .single()
+    const self = this;
     const chain = {
-      select: () => ({
-        single: async () => ({ data: newRow, error: null }),
-        then(onfulfilled?: (value: any) => any, onrejected?: (reason: any) => any) {
-          return Promise.resolve({ data: [newRow], error: null }).then(onfulfilled, onrejected);
-        }
-      }),
-      then(onfulfilled?: (value: any) => any, onrejected?: (reason: any) => any) {
-        return Promise.resolve({ data: [newRow], error: null }).then(onfulfilled, onrejected);
-      }
+      eq: (f: string, v: any) => { self._filters.push([f, v]); return chain; },
+      select: () => ({ single: () => self._execute() }),
+      then: (res?: any, rej?: any) => self._execute().then(res, rej),
     };
-    return chain as any;
+    return chain;
   }
 
-  update(updates: any) {
-    const items = this.getData();
-    let updatedRow: any = null;
-
-    const newItems = items.map((item) => {
-      let matches = true;
-      for (const filter of this.filters) {
-        if (item[filter.field] !== filter.val) {
-          matches = false;
-        }
-      }
-      if (matches) {
-        updatedRow = { ...item, ...updates };
-        return updatedRow;
-      }
-      return item;
-    });
-
-    if (updatedRow) {
-      this.saveData(newItems);
-    }
-
+  // ── Delete ──
+  delete() {
+    this._op = "delete";
+    const self = this;
     const chain = {
-      select: () => ({
-        single: async () => ({ data: updatedRow, error: null }),
-        then(onfulfilled?: (value: any) => any, onrejected?: (reason: any) => any) {
-          return Promise.resolve({ data: updatedRow ? [updatedRow] : [], error: null }).then(onfulfilled, onrejected);
-        }
-      }),
-      then(onfulfilled?: (value: any) => any, onrejected?: (reason: any) => any) {
-        return Promise.resolve({ data: updatedRow ? [updatedRow] : [], error: null }).then(onfulfilled, onrejected);
-      }
+      eq: (f: string, v: any) => { self._filters.push([f, v]); return chain; },
+      then: (res?: any, rej?: any) => self._execute().then(res, rej),
     };
-    return chain as any;
+    return chain;
+  }
+
+  // ── Execute (returns Promise) ──
+  private async _execute(): Promise<{ data: any; error: null | { message: string }; count?: number }> {
+    try {
+      const db = getDb();
+      const table = this._table;
+
+      if (this._op === "insert") {
+        const row = this._insertRow!;
+        const newRow = { id: newId(), created_at: new Date().toISOString(), ...row };
+        const serialized = serializeRow(table, newRow);
+        const cols = Object.keys(serialized);
+        const placeholders = cols.map(() => "?").join(", ");
+        const vals = cols.map((c) => serialized[c]);
+        db.prepare(`INSERT INTO ${table} (${cols.join(", ")}) VALUES (${placeholders})`).run(...vals);
+        return { data: deserializeRow(table, newRow), error: null };
+      }
+
+      if (this._op === "update") {
+        const updates = this._updateFields!;
+        const serialized = serializeRow(table, updates);
+        const setClauses = Object.keys(serialized).map((k) => `${k} = ?`).join(", ");
+        const setVals = Object.values(serialized);
+        const [whereSql, whereVals] = this._buildWhere();
+        const sql = `UPDATE ${table} SET ${setClauses}${whereSql}`;
+        db.prepare(sql).run(...setVals, ...whereVals);
+        // Return the updated row
+        const [fetchSql, fetchVals] = this._buildSelect("*");
+        const updated = db.prepare(fetchSql).get(...fetchVals);
+        const result = updated ? deserializeRow(table, updated as any) : null;
+        return { data: result, error: null };
+      }
+
+      if (this._op === "delete") {
+        const [whereSql, whereVals] = this._buildWhere();
+        db.prepare(`DELETE FROM ${table}${whereSql}`).run(...whereVals);
+        return { data: null, error: null };
+      }
+
+      // SELECT
+      const [sql, vals] = this._buildSelect("*");
+      if (this._single) {
+        const row = db.prepare(sql).get(...vals);
+        if (!row) return { data: null, error: { message: "Row not found" } };
+        return { data: deserializeRow(table, row as any), error: null };
+      }
+      const rows = (db.prepare(sql).all(...vals) as any[]).map((r) => deserializeRow(table, r));
+      return { data: rows, error: null };
+    } catch (e: any) {
+      return { data: null, error: { message: e.message ?? "DB error" } };
+    }
+  }
+
+  private _buildWhere(): [string, any[]] {
+    if (this._filters.length === 0) return ["", []];
+    const clauses = this._filters.map(([f]) => `${f} = ?`).join(" AND ");
+    const vals = this._filters.map(([, v]) => v);
+    return [` WHERE ${clauses}`, vals];
+  }
+
+  private _buildSelect(cols: string): [string, any[]] {
+    const [whereSql, whereVals] = this._buildWhere();
+    const orderSql = this._order
+      ? ` ORDER BY ${this._order.field} ${this._order.asc ? "ASC" : "DESC"}`
+      : "";
+    return [`SELECT ${cols} FROM ${this._table}${whereSql}${orderSql}`, whereVals];
+  }
+
+  // ── Promise interface (allows `await supabase.from("t").select()...`) ──
+  then(res?: (v: any) => any, rej?: (r: any) => any) {
+    return this._execute().then(res, rej);
   }
 }
 
-const mockSupabase = {
-  from: (tableName: string) => {
-    return new LocalQueryBuilder(tableName);
-  }
+// ─── Public supabase export ───────────────────────────────────────────────────
+
+export const supabase = {
+  from: (tableName: string) => new SQLiteQueryBuilder(tableName),
 };
 
-export const supabase = (supabaseUrl && supabaseKey)
-  ? createClient(supabaseUrl, supabaseKey)
-  : (mockSupabase as any);
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Types (unchanged from original) ─────────────────────────────────────────
 
 export type Profile = {
   id: string;

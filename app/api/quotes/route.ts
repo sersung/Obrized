@@ -24,11 +24,11 @@ export async function POST(req: NextRequest) {
 
   // Auto-generate quote number: Q-YYYY-NNN
   const year = new Date().getFullYear();
-  const { count } = await supabase
+  const { data: existing } = await supabase
     .from("quotes")
-    .select("*", { count: "exact", head: true })
+    .select("id")
     .eq("user_email", session.user.email);
-  const seq = String((count ?? 0) + 1).padStart(3, "0");
+  const seq = String((existing?.length ?? 0) + 1).padStart(3, "0");
   const quote_number = `Q-${year}-${seq}`;
 
   const validUntil = new Date();
