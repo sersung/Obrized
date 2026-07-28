@@ -465,6 +465,41 @@ export const translations = {
     odacc_info: "Ontario: Les propriétaires doivent payer dans les 28 jours suivant la réception d'une facture conforme. La Colombie-Britannique suit la même norme de 28 jours.",
     valid: "Valide",
     discrepancies: "Écarts",
+
+    // Trust & Onboarding Section
+    trust_badge_ssl: "Chiffrement SSL",
+    trust_badge_stripe: "Certifié Stripe",
+    trust_badge_gcp: "Hébergé sur GCP",
+    onboarding_title: "Démarrer est simple",
+    onboarding_desc: "Notre équipe vous guide à chaque étape — de l'import de données à la formation de votre équipe.",
+    onboarding_step1_title: "Appel Découverte",
+    onboarding_step1_desc: "Nous comprenons vos flux de travail, types de projets et besoins de conformité en 30 minutes.",
+    onboarding_step2_title: "Installation Personnalisée",
+    onboarding_step2_desc: "Notre équipe configure votre espace, importe les données historiques et met en place les intégrations.",
+    onboarding_step3_title: "Formation de l'Équipe",
+    onboarding_step3_desc: "Toute votre équipe est formée et opérationnelle en 48 heures. Support continu inclus.",
+
+    // Lead Magnet
+    lead_magnet_title: "Liste de Vérification Gratuite — Conformité au Paiement Rapide",
+    lead_magnet_desc: "Téléchargez la liste essentielle pour les entrepreneurs canadiens afin de rester conformes à la Loi sur la Construction.",
+    lead_magnet_cta: "Obtenir la Liste Gratuite",
+    lead_magnet_success: "Vérifiez votre boîte de réception! La liste est en chemin.",
+    lead_magnet_placeholder: "votre@email.com",
+
+    // FAQ Section
+    faq_title: "Questions Fréquemment Posées",
+    faq_q1: "Mes données de construction sont-elles sécurisées sur Obrized?",
+    faq_a1: "Absolument. Toutes les données sont chiffrées en transit (TLS 1.3) et au repos (AES-256). Nous utilisons Supabase sur l'infrastructure GCP avec sécurité au niveau des lignes. Les paiements sont traités directement par Stripe (conforme PCI-DSS).",
+    faq_q2: "Puis-je importer des plans et données de projet existants?",
+    faq_a2: "Oui. Téléchargez des plans PDF directement et notre IA extrait automatiquement les quantités. Vous pouvez aussi importer des données CSV lors de l'intégration.",
+    faq_q3: "Comment fonctionne le suivi du Paiement Rapide?",
+    faq_a3: "Lorsque vous générez une Facture Conforme, Obrized démarre automatiquement le compte à rebours de 28 jours sous la Loi sur la Construction de l'Ontario.",
+    faq_q4: "Que se passe-t-il si j'annule mon abonnement?",
+    faq_a4: "Vos données vous appartiennent. En cas d'annulation, vous pouvez exporter tous vos projets en format CSV/PDF. Vos données sont conservées 90 jours.",
+    faq_q5: "Y a-t-il un essai gratuit?",
+    faq_a5: "Oui! Notre plan gratuit offre 3 analyses de plans par IA, 2 projets actifs, des modèles CCDC et des journaux WSIB de base — sans carte de crédit.",
+    faq_q6: "Offrez-vous un support d'intégration?",
+    faq_a6: "Absolument. Les plans Starter et Pro incluent une intégration personnalisée avec un gestionnaire de succès dédié.",
   },
   PT: {
     // Navigation & Sidebar
@@ -679,6 +714,41 @@ export const translations = {
     odacc_info: "Ontário: Os proprietários devem pagar dentro de 28 dias após o recebimento de uma fatura conforme. A BC segue um padrão estatutário semelhante de 28 dias.",
     valid: "Válido",
     discrepancies: "Divergências",
+
+    // Trust & Onboarding Section
+    trust_badge_ssl: "Criptografia SSL",
+    trust_badge_stripe: "Certificado Stripe",
+    trust_badge_gcp: "Hospedado na GCP",
+    onboarding_title: "Começar é simples",
+    onboarding_desc: "Nossa equipe te guia em cada etapa — da importação de dados ao treinamento da equipe.",
+    onboarding_step1_title: "Chamada Exploratória",
+    onboarding_step1_desc: "Entendemos seus fluxos de trabalho, tipos de projetos e necessidades de conformidade em 30 minutos.",
+    onboarding_step2_title: "Configuração Personalizada",
+    onboarding_step2_desc: "Nossa equipe configura seu workspace, importa dados históricos e integra os sistemas.",
+    onboarding_step3_title: "Treinamento da Equipe",
+    onboarding_step3_desc: "Toda sua equipe treinada e confiante em 48 horas. Suporte contínuo incluso.",
+
+    // Lead Magnet
+    lead_magnet_title: "Checklist Grátis — Conformidade de Pagamento Rápido",
+    lead_magnet_desc: "Baixe o checklist essencial que as construtoras canadenses precisam para manter a conformidade com a Lei de Construção.",
+    lead_magnet_cta: "Baixar Checklist Grátis",
+    lead_magnet_success: "Verifique sua caixa de entrada! O checklist está a caminho.",
+    lead_magnet_placeholder: "seu@email.com",
+
+    // FAQ Section
+    faq_title: "Perguntas Frequentes",
+    faq_q1: "Meus dados de construção estão seguros no Obrized?",
+    faq_a1: "Com certeza. Todos os dados são criptografados em trânsito (TLS 1.3) e em repouso (AES-256). Usamos Supabase na infraestrutura GCP com segurança em nível de linha. Pagamentos são processados diretamente pelo Stripe (PCI-DSS).",
+    faq_q2: "Posso importar projetos e plantas existentes?",
+    faq_a2: "Sim. Faça upload de plantas em PDF e nossa IA extrai quantidades automaticamente. Você também pode importar dados CSV durante o onboarding.",
+    faq_q3: "Como funciona o rastreamento de Pagamento Rápido?",
+    faq_a3: "Quando você gera uma Fatura Conforme, o Obrized inicia automaticamente a contagem de 28 dias sob a Lei de Construção de Ontário.",
+    faq_q4: "O que acontece se eu cancelar minha assinatura?",
+    faq_a4: "Seus dados são seus. Ao cancelar, você pode exportar todos os projetos em formato CSV/PDF. Os dados são retidos por 90 dias.",
+    faq_q5: "Existe um teste gratuito?",
+    faq_a5: "Sim! O plano gratuito oferece 3 análises de planta por IA, 2 projetos ativos, modelos CCDC e logs básicos de WSIB — sem cartão de crédito.",
+    faq_q6: "Vocês oferecem suporte de onboarding?",
+    faq_a6: "Com certeza. Os planos Starter e Pro incluem onboarding personalizado com um gerente de sucesso dedicado.",
   },
   ES: {
     // Navigation & Sidebar
@@ -893,6 +963,41 @@ export const translations = {
     odacc_info: "Ontario: Los propietarios deben pagar dentro de 28 días tras recibir una factura conforme. BC sigue un estándar estatutario similar de 28 días.",
     valid: "Válido",
     discrepancies: "Discrepancias",
+
+    // Trust & Onboarding Section
+    trust_badge_ssl: "Cifrado SSL",
+    trust_badge_stripe: "Certificado Stripe",
+    trust_badge_gcp: "Alojado en GCP",
+    onboarding_title: "Empezar es fácil",
+    onboarding_desc: "Nuestro equipo te guía en cada paso — desde la importación de datos hasta la capacitación del equipo.",
+    onboarding_step1_title: "Llamada de Descubrimiento",
+    onboarding_step1_desc: "Entendemos tus flujos de trabajo, tipos de proyectos y necesidades de cumplimiento en 30 minutos.",
+    onboarding_step2_title: "Configuración Personalizada",
+    onboarding_step2_desc: "Nuestro equipo configura tu espacio, importa datos históricos y establece integraciones.",
+    onboarding_step3_title: "Capacitación del Equipo",
+    onboarding_step3_desc: "Todo tu equipo capacitado y confiado en 48 horas. Soporte continuo incluido.",
+
+    // Lead Magnet
+    lead_magnet_title: "Lista de Verificación Gratis — Cumplimiento de Pago Rápido",
+    lead_magnet_desc: "Descarga la lista esencial que los constructores canadienses necesitan para cumplir con la Ley de Construcción.",
+    lead_magnet_cta: "Obtener Lista Gratis",
+    lead_magnet_success: "¡Revisa tu bandeja de entrada! La lista está en camino.",
+    lead_magnet_placeholder: "tu@email.com",
+
+    // FAQ Section
+    faq_title: "Preguntas Frecuentes",
+    faq_q1: "¿Están seguros mis datos de construcción en Obrized?",
+    faq_a1: "Absolutamente. Todos los datos están cifrados en tránsito (TLS 1.3) y en reposo (AES-256). Usamos Supabase en infraestructura GCP con seguridad a nivel de fila. Los pagos son procesados directamente por Stripe (PCI-DSS).",
+    faq_q2: "¿Puedo importar planos y datos de proyectos existentes?",
+    faq_a2: "Sí. Sube planos en PDF y nuestra IA extrae cantidades automáticamente. También puedes importar datos CSV durante la integración.",
+    faq_q3: "¿Cómo funciona el seguimiento de Pago Rápido?",
+    faq_a3: "Cuando generas una Factura Conforme, Obrized inicia automáticamente la cuenta regresiva de 28 días bajo la Ley de Construcción de Ontario.",
+    faq_q4: "¿Qué pasa si cancelo mi suscripción?",
+    faq_a4: "Tus datos son tuyos. Al cancelar, puedes exportar todos tus proyectos en formato CSV/PDF. Los datos se retienen por 90 días.",
+    faq_q5: "¿Hay una prueba gratuita?",
+    faq_a5: "¡Sí! El plan gratuito ofrece 3 análisis de planos con IA, 2 proyectos activos, plantillas CCDC y registros básicos WSIB — sin tarjeta de crédito.",
+    faq_q6: "¿Ofrecen soporte de integración?",
+    faq_a6: "Absolutamente. Los planes Starter y Pro incluyen integración personalizada con un gerente de éxito dedicado.",
   }
 };
 
