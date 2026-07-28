@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  obrized:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: obrized
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - coolify
+    labels:
+      - "traefik.enable=true"
+      # HTTPS Router
+      - "traefik.http.routers.obrized.entrypoints=https"
+      - "traefik.http.routers.obrized.rule=Host(`obrized.com`) || Host(`www.obrized.com`)"
+      - "traefik.http.routers.obrized.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.obrized.tls=true"
+      - "traefik.http.routers.obrized.service=obrized-svc"
+      # HTTP Router (redirect to HTTPS)
+      - "traefik.http.routers.obrized-http.entrypoints=http"
+      - "traefik.http.routers.obrized-http.rule=Host(`obrized.com`) || Host(`www.obrized.com`)"
+      - "traefik.http.routers.obrized-http.middlewares=obrized-redirect"
+      # Redirect Middleware
+      - "traefik.http.middlewares.obrized-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.obrized-redirect.redirectscheme.permanent=true"
+      # Service
+      - "traefik.http.services.obrized-svc.loadbalancer.server.port=3000"
+
+networks:
+  coolify:
+    external: true

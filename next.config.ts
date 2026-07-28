@@ -28,6 +28,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   serverExternalPackages: ["pdf-parse"],
   turbopack: {
     root: path.resolve(__dirname),
