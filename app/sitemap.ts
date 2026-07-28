@@ -68,5 +68,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.6,
     },
+
+    // ─── Legal & Trust Pages ──────────────────────────────────────────────────
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: `${baseUrl}/security`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
+
+    // ─── Case Studies ─────────────────────────────────────────────────────────
+    {
+      url: `${baseUrl}/case-studies/maple-ridge`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
   ];
 }

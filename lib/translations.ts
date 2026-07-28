@@ -216,6 +216,41 @@ export const translations = {
     odacc_info: "Ontario: Owners must pay within 28 days of receiving a proper invoice. BC follows a similar 28-day statutory standard.",
     valid: "Valid",
     discrepancies: "Discrepancies",
+
+    // Trust & Onboarding Section
+    trust_badge_ssl: "SSL Encrypted",
+    trust_badge_stripe: "Stripe Certified",
+    trust_badge_gcp: "GCP Hosted",
+    onboarding_title: "Getting started is simple",
+    onboarding_desc: "Our team walks you through every step — from data import to team training.",
+    onboarding_step1_title: "Discovery Call",
+    onboarding_step1_desc: "We understand your workflows, project types, and compliance needs in a 30-minute call.",
+    onboarding_step2_title: "White-Glove Setup",
+    onboarding_step2_desc: "Our team configures your workspace, imports historical data, and sets up integrations.",
+    onboarding_step3_title: "Team Training",
+    onboarding_step3_desc: "Your entire crew is trained and confident within 48 hours. Ongoing support included.",
+
+    // Lead Magnet
+    lead_magnet_title: "Free Prompt Payment Compliance Checklist",
+    lead_magnet_desc: "Download the essential checklist Canadian contractors need to stay compliant with the Construction Act.",
+    lead_magnet_cta: "Get Free Checklist",
+    lead_magnet_success: "Check your inbox! The checklist is on its way.",
+    lead_magnet_placeholder: "your@email.com",
+
+    // FAQ Section
+    faq_title: "Frequently Asked Questions",
+    faq_q1: "Is my construction data secure on Obrized?",
+    faq_a1: "Absolutely. All data is encrypted in transit (TLS 1.3) and at rest (AES-256). We use Supabase on GCP infrastructure with row-level security. Payments are processed directly by Stripe (PCI-DSS compliant). We never share your data with third parties.",
+    faq_q2: "Can I import existing blueprints and project data?",
+    faq_a2: "Yes. Upload PDF blueprints directly and our AI extracts quantities automatically. You can also import CSV data for existing estimates, contracts, and invoices during onboarding.",
+    faq_q3: "How does Prompt Payment tracking work?",
+    faq_a3: "When you generate a Proper Invoice, Obrized automatically starts the 28-day statutory clock under the Ontario Construction Act or BC Prompt Payment regulations. You get alerts at 7, 14, and 21 days, plus automatic ODACC/Adjudicate BC filing reminders.",
+    faq_q4: "What happens if I cancel my subscription?",
+    faq_a4: "You own your data. On cancellation, you can export all projects, estimates, contracts, safety logs, and invoices in CSV/PDF format. Your data is retained for 90 days after cancellation.",
+    faq_q5: "Is there a free trial?",
+    faq_a5: "Yes! Our Free Plan gives you 3 AI blueprint analyses, 2 active projects, CCDC templates, and basic WSIB safety logs — no credit card required.",
+    faq_q6: "Do you offer onboarding support?",
+    faq_a6: "Absolutely. Starter and Pro plans include white-glove onboarding with a dedicated success manager. Your team will be fully trained and operational within 48 hours.",
   },
   FR: {
     // Navigation & Sidebar

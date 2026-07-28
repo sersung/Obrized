@@ -15,6 +15,7 @@ import {
   Users,
   Globe,
   ChevronRight,
+  ChevronDown,
   Star,
   Play,
   Sparkles,
@@ -22,6 +23,9 @@ import {
   X,
   Award,
   AlertTriangle,
+  Mail,
+  Phone,
+  Headphones,
 } from "lucide-react";
 import { useTranslations, Language } from "@/lib/translations";
 
@@ -46,6 +50,13 @@ export default function LandingPage() {
   
   // Billing interval state
   const [billingInterval, setBillingInterval] = useState<"monthly" | "annually">("monthly");
+
+  // Lead Magnet state
+  const [leadEmail, setLeadEmail] = useState<string>("");
+  const [leadSubmitted, setLeadSubmitted] = useState<boolean>(false);
+
+  // FAQ accordion state
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     const savedLang = localStorage.getItem("buildr_lang") as Language;
@@ -240,6 +251,22 @@ export default function LandingPage() {
               <Play className="w-4 h-4 text-amber-500 fill-current" /> Watch Product Tour
             </a>
             <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-2.5">Quick 90s Demo Video</span>
+          </div>
+        </div>
+
+        {/* Trust Badges */}
+        <div className="flex flex-wrap items-center justify-center gap-6 mb-16">
+          <div className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 rounded-full px-4 py-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wide">{t("trust_badge_ssl")}</span>
+          </div>
+          <div className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 rounded-full px-4 py-2">
+            <DollarSign className="w-4 h-4 text-amber-400" />
+            <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wide">{t("trust_badge_stripe")}</span>
+          </div>
+          <div className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 rounded-full px-4 py-2">
+            <Zap className="w-4 h-4 text-blue-400" />
+            <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wide">{t("trust_badge_gcp")}</span>
           </div>
         </div>
 
@@ -1094,6 +1121,115 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Onboarding Section */}
+      <section className="py-20 bg-slate-950 border-t border-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-400 text-xs font-bold px-4 py-2 rounded-full mb-6 border border-amber-500/20">
+              <Headphones className="w-3.5 h-3.5" />
+              Support & Onboarding
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 font-display">{t("onboarding_title")}</h2>
+            <p className="text-slate-400 text-sm max-w-2xl mx-auto font-semibold">{t("onboarding_desc")}</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {[
+              { step: "01", icon: Phone, titleKey: "onboarding_step1_title" as const, descKey: "onboarding_step1_desc" as const, color: "amber" },
+              { step: "02", icon: HardHat, titleKey: "onboarding_step2_title" as const, descKey: "onboarding_step2_desc" as const, color: "orange" },
+              { step: "03", icon: Users, titleKey: "onboarding_step3_title" as const, descKey: "onboarding_step3_desc" as const, color: "emerald" },
+            ].map((item) => (
+              <div key={item.step} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-8 text-center relative group hover:border-amber-500/30 transition-all duration-300">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 text-xs font-black px-3 py-1 rounded-full">
+                  Step {item.step}
+                </div>
+                <div className={`w-14 h-14 bg-${item.color}-500/10 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-${item.color}-500/20 group-hover:scale-110 transition-transform`}>
+                  <item.icon className={`w-7 h-7 text-${item.color}-400`} />
+                </div>
+                <h3 className="text-white font-bold text-lg mb-2 font-display">{t(item.titleKey)}</h3>
+                <p className="text-slate-400 text-sm font-medium leading-relaxed">{t(item.descKey)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Lead Magnet Section */}
+      <section className="py-20 bg-slate-950 border-t border-slate-900">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-900/80 border border-amber-500/20 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden shadow-2xl shadow-amber-500/5">
+            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-amber-500/10 to-transparent rounded-br-full pointer-events-none" />
+            <div className="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-amber-500/20">
+              <FileText className="w-7 h-7 text-amber-400" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3 font-display">{t("lead_magnet_title")}</h2>
+            <p className="text-slate-400 text-sm max-w-xl mx-auto mb-8 font-semibold">{t("lead_magnet_desc")}</p>
+            {leadSubmitted ? (
+              <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold text-sm animate-fade-in">
+                <CheckCircle2 className="w-5 h-5" />
+                {t("lead_magnet_success")}
+              </div>
+            ) : (
+              <form onSubmit={(e) => { e.preventDefault(); if (leadEmail) setLeadSubmitted(true); }} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <div className="flex-1 relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <input
+                    type="email"
+                    required
+                    value={leadEmail}
+                    onChange={(e) => setLeadEmail(e.target.value)}
+                    placeholder={t("lead_magnet_placeholder")}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
+                    aria-label="Email address for checklist download"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 px-6 py-3 rounded-xl text-sm font-extrabold hover:shadow-lg hover:shadow-amber-500/15 transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  {t("lead_magnet_cta")} <ArrowRight className="w-4 h-4" />
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="py-20 bg-slate-950 border-t border-slate-900">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 font-display">{t("faq_title")}</h2>
+          </div>
+          <div className="space-y-3">
+            {([
+              { q: "faq_q1" as const, a: "faq_a1" as const },
+              { q: "faq_q2" as const, a: "faq_a2" as const },
+              { q: "faq_q3" as const, a: "faq_a3" as const },
+              { q: "faq_q4" as const, a: "faq_a4" as const },
+              { q: "faq_q5" as const, a: "faq_a5" as const },
+              { q: "faq_q6" as const, a: "faq_a6" as const },
+            ]).map((item, index) => (
+              <div key={index} className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
+                <button
+                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                  className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-800/30 transition-colors"
+                  aria-expanded={openFaq === index}
+                  aria-controls={`faq-answer-${index}`}
+                >
+                  <span className="text-sm font-bold text-white pr-4">{t(item.q)}</span>
+                  <ChevronDown className={`w-5 h-5 text-amber-400 flex-shrink-0 transition-transform duration-200 ${openFaq === index ? 'rotate-180' : ''}`} />
+                </button>
+                {openFaq === index && (
+                  <div id={`faq-answer-${index}`} className="px-6 pb-5 animate-fade-in">
+                    <p className="text-slate-400 text-sm leading-relaxed font-medium">{t(item.a)}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Rebranded Professional Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-16 text-slate-500 text-xs font-medium">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
@@ -1137,10 +1273,10 @@ export default function LandingPage() {
           <div className="space-y-3">
             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Legal</p>
             <ul className="space-y-2">
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">Terms of Service</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">Prompt Payment Act</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">WSIB compliance</Link></li>
+              <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/security" className="hover:text-white transition-colors">Security & Compliance</Link></li>
+              <li><Link href="/case-studies/maple-ridge" className="hover:text-white transition-colors">Case Studies</Link></li>
             </ul>
           </div>
         </div>
