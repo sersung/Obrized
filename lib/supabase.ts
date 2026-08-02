@@ -26,6 +26,8 @@ const JSON_COLS: Record<string, Set<string>> = {
   quotes:         new Set(["items", "payment_methods"]),
   clients:        new Set(["tags"]),
   jobs:           new Set([]),
+  team_members:   new Set([]),
+  time_entries:   new Set([]),
 };
 
 // ─── Lazy SQLite singleton ────────────────────────────────────────────────────
@@ -195,7 +197,40 @@ function getDb() {
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS team_members (
+      id TEXT PRIMARY KEY,
+      owner_email TEXT NOT NULL,
+      name TEXT NOT NULL DEFAULT '',
+      email TEXT DEFAULT '',
+      phone TEXT DEFAULT '',
+      role TEXT DEFAULT 'technician',
+      speciality TEXT DEFAULT '',
+      hourly_rate REAL DEFAULT 0,
+      status TEXT DEFAULT 'active',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS time_entries (
+      id TEXT PRIMARY KEY,
+      user_email TEXT NOT NULL,
+      job_id TEXT NOT NULL,
+      worker_name TEXT DEFAULT '',
+      work_date TEXT NOT NULL,
+      hours REAL DEFAULT 0,
+      notes TEXT DEFAULT '',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
   `);
+
+  // Migrations: safely add new columns to tables that may already exist
+  const migrations = [
+    "ALTER TABLE clients ADD COLUMN portal_token TEXT DEFAULT ''",
+    "ALTER TABLE jobs ADD COLUMN assigned_to TEXT DEFAULT ''",
+  ];
+  for (const sql of migrations) {
+    try { _db.exec(sql); } catch { /* column already exists — safe to ignore */ }
+  }
 
   // Seed default demo profile if empty
   const profileCount = (_db.prepare("SELECT COUNT(*) as c FROM profiles").get() as any).c;
@@ -540,6 +575,30 @@ export type Client = {
   status: "active" | "inactive";
   created_at: string;
   updated_at: string;
+};
+
+export type TeamMember = {
+  id: string;
+  owner_email: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: "owner" | "technician" | "supervisor" | "apprentice";
+  speciality: string;
+  hourly_rate: number;
+  status: "active" | "inactive";
+  created_at: string;
+};
+
+export type TimeEntry = {
+  id: string;
+  user_email: string;
+  job_id: string;
+  worker_name: string;
+  work_date: string;
+  hours: number;
+  notes: string;
+  created_at: string;
 };
 
 export type Job = {

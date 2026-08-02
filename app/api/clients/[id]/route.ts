@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import { getServerSession, authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 
@@ -14,6 +15,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     .single();
 
   if (error || !client) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  // Auto-generate portal token if missing
+  if (!(client as any).portal_token) {
+    const portal_token = crypto.randomBytes(20).toString("hex");
+    await supabase.from("clients").update({ portal_token }).eq("id", params.id);
+    (client as any).portal_token = portal_token;
+  }
 
   const [{ data: quotes }, { data: jobs }] = await Promise.all([
     supabase

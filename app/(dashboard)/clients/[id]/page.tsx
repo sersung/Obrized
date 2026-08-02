@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   ArrowLeft, Mail, Phone, MapPin, Building2, Edit2, Save,
   X, Briefcase, FileText, ClipboardList, ExternalLink, Plus,
-  CheckCircle, Clock, AlertCircle,
+  CheckCircle, Clock, AlertCircle, Globe, Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -91,6 +91,13 @@ export default function ClientDetailPage() {
   const initials = (client.name || client.company || "?").slice(0, 2).toUpperCase();
   const totalJobValue = client.jobs.reduce((s, j) => s + (j.total_value ?? 0), 0);
   const totalQuoteValue = client.quotes.reduce((s, q) => s + (q.total ?? 0), 0);
+
+  function copyPortalLink() {
+    if (!client.portal_token) return;
+    const url = `${window.location.origin}/portal/${client.portal_token}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Portal link copied to clipboard!");
+  }
 
   return (
     <div className="flex flex-col gap-5 p-4 sm:p-6 max-w-4xl mx-auto">
@@ -220,6 +227,21 @@ export default function ClientDetailPage() {
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Client since</span>
             <span className="text-sm text-gray-600">{new Date(client.created_at).toLocaleDateString("en-CA")}</span>
           </div>
+          {(client as any).portal_token && (
+            <div className="flex items-center gap-3 px-5 py-3.5">
+              <Globe className="w-4 h-4 text-brand-400 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-gray-500">Client Portal</p>
+                <p className="text-xs text-gray-400 truncate">/portal/{(client as any).portal_token.slice(0, 12)}…</p>
+              </div>
+              <button
+                onClick={copyPortalLink}
+                className="flex items-center gap-1.5 text-xs bg-brand-50 text-brand-700 px-3 py-1.5 rounded-lg font-semibold hover:bg-brand-100 transition-colors flex-shrink-0"
+              >
+                <Copy className="w-3 h-3" /> Copy Link
+              </button>
+            </div>
+          )}
         </div>
       )}
 
