@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 // Public endpoint — no auth required (quote ID is the access token)
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const { data, error } = await supabase
     .from("quotes")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (error || !data) return NextResponse.json({ error: "Quote not found" }, { status: 404 });
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     await supabase
       .from("quotes")
       .update({ status: "viewed", updated_at: new Date().toISOString() })
-      .eq("id", params.id);
+      .eq("id", id);
     data.status = "viewed";
   }
 
@@ -24,7 +25,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // Client signing endpoint
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const body = await req.json();
   const { action, signed_by, signature_data } = body;
 
@@ -42,7 +44,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         signature_data,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", params.id)
+      .eq("id", id)
       .select()
       .single();
 

@@ -3,14 +3,15 @@ import crypto from "crypto";
 import { getServerSession, authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { data: client, error } = await supabase
     .from("clients")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_email", session.user.email)
     .single();
 
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   // Auto-generate portal token if missing
   if (!(client as any).portal_token) {
     const portal_token = crypto.randomBytes(20).toString("hex");
-    await supabase.from("clients").update({ portal_token }).eq("id", params.id);
+    await supabase.from("clients").update({ portal_token }).eq("id", id);
     (client as any).portal_token = portal_token;
   }
 
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .from("jobs")
       .select("*")
       .eq("user_email", session.user.email)
-      .eq("client_id", params.id),
+      .eq("client_id", id),
   ]);
 
   return NextResponse.json({ ...client, quotes: quotes ?? [], jobs: jobs ?? [] });

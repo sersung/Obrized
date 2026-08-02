@@ -18,7 +18,12 @@ export async function GET() {
     supabase.from("quotes").select("total,status,created_at,client_name").eq("user_email", email),
     supabase.from("jobs").select("total_value,status,actual_hours,estimated_hours,client_name,created_at").eq("user_email", email),
     supabase.from("clients").select("id,name,company").eq("user_email", email),
-  ]);
+  ]) as [
+    { data: any[] | null },
+    { data: any[] | null },
+    { data: any[] | null },
+    { data: any[] | null },
+  ];
 
   // Monthly revenue — last 6 months from invoices (paid + submitted)
   const now = new Date();

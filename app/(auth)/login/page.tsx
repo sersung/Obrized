@@ -1,85 +1,140 @@
 "use client";
 
-import { SignIn } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { LogIn } from "lucide-react";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { LogIn, HardHat, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail]       = useState("");
+  const [password, setPassword] = useState("");
+  const [showPw, setShowPw]     = useState(false);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState("");
 
-  const handleDemoLogin = () => {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
     setLoading(true);
-    // Client-side mock will automatically authorize the demo user
-    setTimeout(() => {
-      router.push("/dashboard");
-    }, 500);
-  };
 
-  // Check if Clerk is configured with environment variables
-  const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    setLoading(false);
+
+    if (res?.error) {
+      setError("Email ou senha inválidos.");
+    } else {
+      router.push("/dashboard");
+    }
+  }
+
+  async function handleDemo() {
+    setLoading(true);
+    await signIn("credentials", {
+      email:    "john.carter@jcconstruction.ca",
+      password: "password123",
+      redirect: false,
+    });
+    router.push("/dashboard");
+  }
 
   return (
-    <div className="w-full max-w-md animate-fade-in flex flex-col items-center justify-center space-y-4">
-      {isClerkConfigured ? (
-        <div className="w-full flex flex-col items-center space-y-4">
-          <SignIn
-            routing="hash"
-            signUpUrl="/register"
-            forceRedirectUrl="/dashboard"
-            appearance={{
-              elements: {
-                rootBox: "w-full",
-                cardBox: "shadow-sm border border-gray-150 rounded-2xl overflow-hidden bg-white",
-              },
-            }}
-          />
+    <div className="w-full max-w-md animate-fade-in">
+      <div className="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden">
+        {/* Header */}
+        <div className="px-8 pt-8 pb-6 border-b border-gray-50 flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 bg-brand-600 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-600/25">
+            <HardHat className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Entrar no Obrized</h1>
+            <p className="text-xs text-gray-400 font-semibold mt-1">Construção Inteligente</p>
+          </div>
+        </div>
 
-          <div className="w-full bg-brand-50 border border-brand-100 rounded-2xl px-4 py-3.5 flex items-center justify-between shadow-inner">
+        <form onSubmit={handleSubmit} className="px-8 py-7 space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-100 text-red-700 text-sm font-medium px-4 py-3 rounded-xl">
+              {error}
+            </div>
+          )}
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-gray-600">Email</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-gray-600">Senha</label>
+            <div className="relative">
+              <input
+                type={showPw ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-brand-600 text-white py-3 rounded-xl font-bold hover:bg-brand-700 transition-all duration-200 shadow-md shadow-brand-600/10 flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            <LogIn className="w-4 h-4" />
+            {loading ? "Entrando..." : "Entrar"}
+          </button>
+
+          <p className="text-center text-xs text-gray-500">
+            Não tem conta?{" "}
+            <Link href="/register" className="text-brand-600 font-semibold hover:underline">
+              Criar conta
+            </Link>
+          </p>
+        </form>
+
+        {/* Demo banner */}
+        <div className="px-8 pb-7">
+          <div className="bg-brand-50 border border-brand-100 rounded-2xl px-4 py-3.5 flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-brand-850">Demo Bypass Mode</p>
-              <p className="text-[10px] text-brand-600 font-semibold mt-0.5">Test all features instantly with a single click</p>
+              <p className="text-xs font-bold text-brand-850">Modo Demo</p>
+              <p className="text-[10px] text-brand-600 font-semibold mt-0.5">
+                Teste todas as funcionalidades com um clique
+              </p>
             </div>
             <button
-              onClick={handleDemoLogin}
+              onClick={handleDemo}
               disabled={loading}
-              className="text-[10px] font-bold uppercase tracking-wide text-brand-700 bg-white border border-brand-200 px-3.5 py-1.75 rounded-lg hover:bg-brand-100 transition-colors shadow-sm flex items-center gap-1.5"
+              className="text-[10px] font-bold uppercase tracking-wide text-brand-700 bg-white border border-brand-200 px-3.5 py-1.5 rounded-lg hover:bg-brand-100 transition-colors shadow-sm flex items-center gap-1.5"
             >
               <LogIn className="w-3 h-3" />
-              {loading ? "Logging in..." : "Demo Login"}
+              Demo
             </button>
           </div>
         </div>
-      ) : (
-        // Standard Failsafe / Offline Mode card
-        <div className="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden w-full">
-          <div className="px-8 pt-8 pb-6 border-b border-gray-50 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Obrized Login</h1>
-            <p className="text-xs text-gray-400 font-semibold mt-1">Platform in Offline / Demo Mode</p>
-          </div>
-
-          <div className="px-8 py-8 space-y-6">
-            <div className="bg-brand-50 border border-brand-100 rounded-2xl p-5 shadow-inner space-y-3">
-              <p className="text-xs font-bold text-brand-850">Demo Credentials</p>
-              <p className="text-[10px] text-brand-600 font-semibold">Use this account to test all features instantly, including quantity takeoffs, CCDC analysis, and invoice tracking.</p>
-              <div className="text-[10px] bg-white border border-brand-200 rounded-xl p-3 font-semibold space-y-1 text-gray-700">
-                <p>E-mail: <span className="font-bold text-brand-700">john.carter@jcconstruction.ca</span></p>
-                <p>Password: <span className="font-bold text-brand-700">password123</span></p>
-              </div>
-            </div>
-
-            <button
-              onClick={handleDemoLogin}
-              disabled={loading}
-              className="w-full bg-brand-600 text-white py-3 rounded-xl font-bold hover:bg-brand-700 transition-all duration-200 shadow-md shadow-brand-600/10 flex items-center justify-center gap-2"
-            >
-              <LogIn className="w-4 h-4" />
-              {loading ? "Entering Dashboard..." : "Log In with Demo Credentials"}
-            </button>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

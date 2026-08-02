@@ -19,6 +19,7 @@ interface Job {
   priority: "low" | "normal" | "high" | "urgent";
   address: string;
   scheduled_date: string | null;
+  completed_date: string | null;
   total_value: number;
   estimated_hours: number;
   created_at: string;

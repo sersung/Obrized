@@ -327,11 +327,15 @@ class SQLiteQueryBuilder {
   insert(row: Record<string, any>) {
     this._op = "insert";
     this._insertRow = row;
-    // Return a chain that supports .select().single()
     const self = this;
     return {
-      select: () => ({ single: () => self._execute() }),
-      then: (res?: any, rej?: any) => self._execute().then(res, rej),
+      select: () => ({ single: (): Promise<any> => self._execute() }),
+      then<T, R = never>(
+        res?: ((v: any) => T | PromiseLike<T>) | null,
+        rej?: ((r: any) => R | PromiseLike<R>) | null,
+      ): Promise<T | R> {
+        return self._execute().then(res as any, rej as any);
+      },
     };
   }
 
@@ -339,12 +343,23 @@ class SQLiteQueryBuilder {
   update(fields: Record<string, any>) {
     this._op = "update";
     this._updateFields = fields;
-    // Chainable: .eq() → .select() → .single()
     const self = this;
-    const chain = {
-      eq: (f: string, v: any) => { self._filters.push([f, v]); return chain; },
-      select: () => ({ single: () => self._execute() }),
-      then: (res?: any, rej?: any) => self._execute().then(res, rej),
+    const chain: {
+      eq(f: string, v: any): typeof chain;
+      select(): { single(): Promise<any> };
+      then<T, R = never>(
+        res?: ((v: any) => T | PromiseLike<T>) | null,
+        rej?: ((r: any) => R | PromiseLike<R>) | null,
+      ): Promise<T | R>;
+    } = {
+      eq(f, v) { self._filters.push([f, v]); return chain; },
+      select: () => ({ single: (): Promise<any> => self._execute() }),
+      then<T, R = never>(
+        res?: ((v: any) => T | PromiseLike<T>) | null,
+        rej?: ((r: any) => R | PromiseLike<R>) | null,
+      ): Promise<T | R> {
+        return self._execute().then(res as any, rej as any);
+      },
     };
     return chain;
   }
@@ -353,9 +368,20 @@ class SQLiteQueryBuilder {
   delete() {
     this._op = "delete";
     const self = this;
-    const chain = {
-      eq: (f: string, v: any) => { self._filters.push([f, v]); return chain; },
-      then: (res?: any, rej?: any) => self._execute().then(res, rej),
+    const chain: {
+      eq(f: string, v: any): typeof chain;
+      then<T, R = never>(
+        res?: ((v: any) => T | PromiseLike<T>) | null,
+        rej?: ((r: any) => R | PromiseLike<R>) | null,
+      ): Promise<T | R>;
+    } = {
+      eq(f, v) { self._filters.push([f, v]); return chain; },
+      then<T, R = never>(
+        res?: ((v: any) => T | PromiseLike<T>) | null,
+        rej?: ((r: any) => R | PromiseLike<R>) | null,
+      ): Promise<T | R> {
+        return self._execute().then(res as any, rej as any);
+      },
     };
     return chain;
   }

@@ -23,6 +23,7 @@ interface ClientDetail {
   notes: string;
   status: string;
   created_at: string;
+  portal_token?: string;
   quotes: Array<{ id: string; quote_number: string; status: string; total: number; project_name: string; created_at: string }>;
   jobs: Array<{ id: string; title: string; status: string; total_value: number; scheduled_date: string | null; priority: string }>;
 }
@@ -93,7 +94,7 @@ export default function ClientDetailPage() {
   const totalQuoteValue = client.quotes.reduce((s, q) => s + (q.total ?? 0), 0);
 
   function copyPortalLink() {
-    if (!client.portal_token) return;
+    if (!client || !client.portal_token) return;
     const url = `${window.location.origin}/portal/${client.portal_token}`;
     navigator.clipboard.writeText(url);
     toast.success("Portal link copied to clipboard!");

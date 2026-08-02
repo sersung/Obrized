@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
-export async function GET(req: NextRequest, { params }: { params: { token: string } }) {
-  const { token } = params;
+export async function GET(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
   if (!token) return NextResponse.json({ error: "Invalid token" }, { status: 400 });
 
   // Find client by portal_token
@@ -48,8 +48,8 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
 }
 
 // POST: client requests a new service via the portal
-export async function POST(req: NextRequest, { params }: { params: { token: string } }) {
-  const { token } = params;
+export async function POST(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
   const body = await req.json();
 
   const { data: client, error } = await supabase
