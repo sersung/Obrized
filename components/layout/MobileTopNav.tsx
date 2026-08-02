@@ -19,6 +19,8 @@ import {
   Plus,
   Globe,
   ChevronRight,
+  Users,
+  Briefcase,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations, Language } from "@/lib/translations";
@@ -40,17 +42,23 @@ export default function MobileTopNav() {
 
   const navItems = [
     { href: "/dashboard",  icon: LayoutDashboard, label: t("dashboard") },
+    { href: "/clients",    icon: Users,            label: "Clients" },
+    { href: "/jobs",       icon: Briefcase,        label: "Jobs" },
     { href: "/estimating", icon: Calculator,       label: t("estimating") },
+    { href: "/quotes",     icon: ClipboardList,    label: "Quotes" },
+    { href: "/payments",   icon: DollarSign,       label: t("payments") },
     { href: "/contracts",  icon: FileText,         label: t("contracts") },
     { href: "/safety",     icon: ShieldCheck,      label: t("safety") },
     { href: "/scheduling", icon: Calendar,         label: t("scheduling") },
-    { href: "/payments",   icon: DollarSign,       label: t("payments") },
-    { href: "/quotes",     icon: ClipboardList,    label: "Quotes" },
     { href: "/settings",   icon: Settings,         label: t("settings") },
   ];
 
   const breadcrumbMap: Record<string, string> = {
     "/dashboard":    t("dashboard"),
+    "/clients":      "Clients",
+    "/clients/new":  "New Client",
+    "/jobs":         "Jobs",
+    "/jobs/new":     "New Job",
     "/estimating":   t("estimating"),
     "/estimating/new": t("new_estimate"),
     "/contracts":    t("contracts"),
@@ -66,6 +74,8 @@ export default function MobileTopNav() {
   };
 
   const newActionMap: Record<string, { href: string; label: string }> = {
+    "/clients":    { href: "/clients/new",   label: "New Client" },
+    "/jobs":       { href: "/jobs/new",      label: "New Job" },
     "/estimating": { href: "/estimating/new", label: t("new_estimate") },
     "/contracts":  { href: "/contracts/new",  label: t("new_contract") },
     "/safety":     { href: "/safety/new",     label: t("new_safety_report") },
@@ -138,7 +148,7 @@ export default function MobileTopNav() {
         <div
           className={cn(
             "overflow-hidden transition-all duration-300 ease-in-out",
-            open ? "max-h-[620px]" : "max-h-0"
+            open ? "max-h-[800px]" : "max-h-0"
           )}
         >
           <div className="bg-white border-t border-gray-100 px-3 pt-2 pb-3">

@@ -24,6 +24,8 @@ const JSON_COLS: Record<string, Set<string>> = {
   safety_reports: new Set(["report"]),
   invoices:       new Set(["items"]),
   quotes:         new Set(["items", "payment_methods"]),
+  clients:        new Set(["tags"]),
+  jobs:           new Set([]),
 };
 
 // ─── Lazy SQLite singleton ────────────────────────────────────────────────────
@@ -151,6 +153,45 @@ function getDb() {
       signed_at TEXT,
       signed_by TEXT,
       signature_data TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS clients (
+      id TEXT PRIMARY KEY,
+      user_email TEXT NOT NULL,
+      name TEXT DEFAULT '',
+      company TEXT DEFAULT '',
+      email TEXT DEFAULT '',
+      phone TEXT DEFAULT '',
+      address TEXT DEFAULT '',
+      city TEXT DEFAULT '',
+      province TEXT DEFAULT 'ON',
+      notes TEXT DEFAULT '',
+      tags TEXT DEFAULT '[]',
+      status TEXT DEFAULT 'active',
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS jobs (
+      id TEXT PRIMARY KEY,
+      user_email TEXT NOT NULL,
+      client_id TEXT DEFAULT '',
+      client_name TEXT DEFAULT '',
+      title TEXT DEFAULT '',
+      description TEXT DEFAULT '',
+      status TEXT DEFAULT 'scheduled',
+      priority TEXT DEFAULT 'normal',
+      address TEXT DEFAULT '',
+      scheduled_date TEXT,
+      completed_date TEXT,
+      estimated_hours REAL DEFAULT 0,
+      actual_hours REAL DEFAULT 0,
+      total_value REAL DEFAULT 0,
+      quote_id TEXT DEFAULT '',
+      invoice_id TEXT DEFAULT '',
+      notes TEXT DEFAULT '',
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
@@ -482,4 +523,43 @@ export type InvoiceItem = {
   description: string;
   quantity: number;
   unit_price: number;
+};
+
+export type Client = {
+  id: string;
+  user_email: string;
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  province: string;
+  notes: string;
+  tags: string[];
+  status: "active" | "inactive";
+  created_at: string;
+  updated_at: string;
+};
+
+export type Job = {
+  id: string;
+  user_email: string;
+  client_id: string;
+  client_name: string;
+  title: string;
+  description: string;
+  status: "scheduled" | "in_progress" | "completed" | "cancelled";
+  priority: "low" | "normal" | "high" | "urgent";
+  address: string;
+  scheduled_date: string | null;
+  completed_date: string | null;
+  estimated_hours: number;
+  actual_hours: number;
+  total_value: number;
+  quote_id: string;
+  invoice_id: string;
+  notes: string;
+  created_at: string;
+  updated_at: string;
 };
