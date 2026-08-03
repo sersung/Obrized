@@ -7,7 +7,7 @@ const cspPolicy = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: https: blob:",
-  "connect-src 'self' https://api.stripe.com https://*.supabase.co https://generativelanguage.googleapis.com",
+  "connect-src 'self' https://api.stripe.com https://generativelanguage.googleapis.com",
   "frame-src https://js.stripe.com https://checkout.stripe.com",
 ].join("; ");
 
@@ -29,7 +29,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  serverExternalPackages: ["pdf-parse"],
+  serverExternalPackages: ["pdf-parse", "better-sqlite3"],
   turbopack: {
     root: path.resolve(__dirname),
   },

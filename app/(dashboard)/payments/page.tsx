@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
-import { Plus, Clock, CheckCircle2, AlertTriangle, XCircle, DollarSign, Loader2 } from "lucide-react";
+import { Plus, Clock, CheckCircle2, AlertTriangle, XCircle, DollarSign, Loader2, CreditCard } from "lucide-react";
 import { differenceInDays, parseISO } from "date-fns";
 import { useTranslations, Language } from "@/lib/translations";
 
@@ -220,9 +220,33 @@ export default function PaymentsPage() {
                       {fmt(inv.total)}
                     </td>
                     <td className="px-6 py-5">
-                      <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${status.color}`}>
-                        {status.label}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${status.color}`}>
+                          {status.label}
+                        </span>
+                        {inv.status !== "paid" && inv.status !== "draft" && (
+                          <button
+                            title="Send payment link to client"
+                            onClick={async () => {
+                              const res = await fetch("/api/stripe/invoice-payment", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ invoice_id: inv.id }),
+                              });
+                              const d = await res.json();
+                              if (d.url) {
+                                navigator.clipboard.writeText(d.url);
+                                alert(d.mock
+                                  ? "Mock payment link copied! (Configure Stripe to enable real payments)"
+                                  : "Payment link copied to clipboard — send it to your client.");
+                              }
+                            }}
+                            className="p-1.5 rounded-lg bg-brand-50 text-brand-600 hover:bg-brand-100 transition-colors"
+                          >
+                            <CreditCard className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

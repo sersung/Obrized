@@ -25,6 +25,19 @@ export async function POST(req: NextRequest) {
     // Handle subscription event states
     switch (event.type) {
       case "checkout.session.completed": {
+        // Invoice payment — different from subscription checkout
+        if (session.metadata?.type === "invoice_payment") {
+          const invoiceId = session.metadata?.invoice_id;
+          if (invoiceId) {
+            await supabase
+              .from("invoices")
+              .update({ status: "paid" })
+              .eq("id", invoiceId);
+          }
+          break;
+        }
+
+        // Subscription checkout
         const userEmail = session.metadata?.user_email;
         const planName = session.metadata?.plan_name;
         const billingCycle = session.metadata?.billing_cycle;

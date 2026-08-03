@@ -11,11 +11,16 @@ import {
   ShieldCheck,
   Calendar,
   DollarSign,
+  ClipboardList,
   Settings as SettingsIcon,
   Globe,
   CheckCircle2,
   X,
   ChevronRight,
+  Users,
+  Briefcase,
+  BarChart2,
+  UserCog,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations, Language } from "@/lib/translations";
@@ -45,12 +50,17 @@ export default function Sidebar({ onClose, mobile = false }: SidebarProps) {
   const { t } = useTranslations(lang);
 
   const navItems = [
-    { href: "/dashboard", icon: LayoutDashboard, label: t("dashboard") },
-    { href: "/estimating", icon: Calculator, label: t("estimating") },
-    { href: "/contracts", icon: FileText, label: t("contracts") },
-    { href: "/safety", icon: ShieldCheck, label: t("safety") },
-    { href: "/scheduling", icon: Calendar, label: t("scheduling") },
-    { href: "/payments", icon: DollarSign, label: t("payments") },
+    { href: "/dashboard",  icon: LayoutDashboard, label: t("dashboard") },
+    { href: "/clients",    icon: Users,            label: "Clients" },
+    { href: "/jobs",       icon: Briefcase,        label: "Jobs" },
+    { href: "/team",       icon: UserCog,          label: "Team" },
+    { href: "/estimating", icon: Calculator,       label: t("estimating") },
+    { href: "/quotes",     icon: ClipboardList,    label: "Quotes" },
+    { href: "/payments",   icon: DollarSign,       label: t("payments") },
+    { href: "/contracts",  icon: FileText,         label: t("contracts") },
+    { href: "/safety",     icon: ShieldCheck,      label: t("safety") },
+    { href: "/scheduling", icon: Calendar,         label: t("scheduling") },
+    { href: "/reports",    icon: BarChart2,        label: "Reports" },
   ];
 
   const handleNavClick = () => {
